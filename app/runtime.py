@@ -143,7 +143,7 @@ class Runtime:
         if self.writer.failure or self.fatal:
             blockers.append(self.writer.failure or self.fatal)
         return {"health": "CRITICAL" if self.writer.failure or self.fatal or self.paper.failure else ("DEGRADED" if blockers else "HEALTHY"),
-                "mode": "PAPER_ACTIVE" if not blockers and session and session.can_enter(now) else "WATCH_ONLY", "paper_mode": True, "live_trading_enabled": False, "version": "0.5.0",
+                "mode": "PAPER_ACTIVE" if not blockers and session and session.can_enter(now) else "WATCH_ONLY", "paper_mode": True, "live_trading_enabled": False, "version": "0.6.0",
                 "market_phase": phase, "market_connection": "CONNECTED" if all(f.connected for f in self.feeds) else "CONNECTING",
                 "candidate_count": len(self.candidates), "supported_count": len(self.rules),
                 "focus_count": len(self.focus), "focus_symbols": self.focus, "observed_symbols": len(self.seen),

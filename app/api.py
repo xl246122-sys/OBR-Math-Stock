@@ -77,7 +77,7 @@ def create_app(settings=None):
         if app.state.runtime:
             return app.state.runtime.status()
         return {"health": "DEGRADED", "mode": "WATCH_ONLY", "paper_mode": True,
-                "live_trading_enabled": False, "version": "0.5.0",
+                "live_trading_enabled": False, "version": "0.6.0",
                 "performance": "NOT_TESTED", "market_connection": "NOT_STARTED",
                 "blockers": ["UNIVERSE_NOT_VERIFIED", "VOLUME_NOT_VERIFIED", "FEES_NOT_VERIFIED"]}
 
