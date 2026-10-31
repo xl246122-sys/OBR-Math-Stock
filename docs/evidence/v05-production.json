@@ -1,0 +1,253 @@
+{
+  "checked_utc": "2026-10-31T08:59:10.747745+00:00",
+  "release": "v05-20261031T085742Z",
+  "server_tests": 128,
+  "checks": {
+    "unauthenticated": 401,
+    "status": 200,
+    "positions": 200,
+    "metrics": 200,
+    "signals": 200,
+    "universe": 200,
+    "alerts": 200,
+    "fees": 200,
+    "reports": 200,
+    "trading-mode": 200,
+    "paper-config": 200,
+    "demo": 200,
+    "demo_exit_reasons": [
+      "TAKE_PROFIT",
+      "STOP_LOSS",
+      "DAILY_LOSS_LIMIT"
+    ],
+    "monitor_token_cannot_write": 403,
+    "other_routes_read_only": 405,
+    "budget_save_same_values": 200,
+    "mode_switch_and_restore": "PASS",
+    "OBR-Math-0.5.0.apk": {
+      "http": 200,
+      "bytes": 6874620,
+      "sha256": "22da0dc0a293f135a950c1337fbdd5ac74ee63ab3f3162f6823c45ea22eb980b"
+    },
+    "OBR-Math-0.5.0-debug.apk": {
+      "http": 200,
+      "bytes": 9270059,
+      "sha256": "b497bcc6d942dc09c994a998e496b355e346531fa48b773665bd23fea03eb913"
+    },
+    "restart_configuration_persistence": "PASS",
+    "services": "active\nactive\nactive\nactive\n",
+    "isolation": "DropInPaths=/etc/systemd/system/obr-math.service.d/security.conf\nNRestarts=0\nWorkingDirectory=/opt/obr-math/releases/v05-20261031T085742Z\nUser=obr-math\nProtectSystem=strict\nNoNewPrivileges=yes\n",
+    "firewall": "Status: active\n\nTo                         Action      From\n--                         ------      ----\n22/tcp                     ALLOW       Anywhere                  \n80/tcp                     ALLOW       Anywhere                  \n443/tcp                    ALLOW       Anywhere                  \n22/tcp (v6)                ALLOW       Anywhere (v6)             \n80/tcp (v6)                ALLOW       Anywhere (v6)             \n443/tcp (v6)               ALLOW       Anywhere (v6)             \n\n",
+    "nginx": "nginx: the configuration file /etc/nginx/nginx.conf syntax is ok\nnginx: configuration file /etc/nginx/nginx.conf test is successful\n"
+  },
+  "status": {
+    "health": "DEGRADED",
+    "mode": "WATCH_ONLY",
+    "paper_mode": true,
+    "live_trading_enabled": false,
+    "version": "0.5.0",
+    "market_phase": "MARKET_CLOSED",
+    "market_connection": "CONNECTED",
+    "candidate_count": 479,
+    "supported_count": 474,
+    "focus_count": 9,
+    "focus_symbols": [
+      "NVDA",
+      "AAPL",
+      "MSFT",
+      "AVGO",
+      "AMD",
+      "GOOGL",
+      "META",
+      "NFLX",
+      "NYT"
+    ],
+    "observed_symbols": 133,
+    "rules_verified": true,
+    "rules_checked_ms": 1793437075961,
+    "blockers": [
+      "PAPER_VERIFICATION_REQUIRED",
+      "FEES_NOT_VERIFIED",
+      "VOLUME_NOT_VERIFIED"
+    ],
+    "heartbeat_ms": 1793437153069,
+    "paper_config": {
+      "initial_cash": "600",
+      "per_order_budget": "300",
+      "max_positions": 2,
+      "fee_policy": "BINANCE_OFFICIAL_DYNAMIC",
+      "max_daily_loss": "6.00",
+      "max_exposure": "600",
+      "max_daily_symbols": 5
+    },
+    "paper_pipeline_connected": true,
+    "paper_account_initialized": false,
+    "trading_modes": {
+      "mode": "PAPER",
+      "revision": 0,
+      "paper_enabled": true,
+      "live_enabled": false,
+      "live_available": false,
+      "live_blockers": [
+        "LIVE_EXECUTION_NOT_CONNECTED",
+        "LIVE_ACCOUNT_NOT_RECONCILED",
+        "LIVE_FEES_NOT_VERIFIED",
+        "LIVE_INSTRUMENT_METADATA_NOT_VERIFIED"
+      ],
+      "off_behavior": "STOP_NEW_ENTRIES_KEEP_POSITION_PROTECTION",
+      "live_scope": {
+        "buy_wallet": "MAIN",
+        "quote_asset": "USDC",
+        "sell_settlement_wallet": "CARD",
+        "settlement_accepted": true,
+        "automatic_transfers": false,
+        "listing_country": "US",
+        "security_types": [
+          "STOCK",
+          "ETF"
+        ],
+        "instrument_form": "UNDERLYING_SECURITY",
+        "tokenize": false,
+        "unverified_instruments": "REJECT"
+      },
+      "control_configured": true
+    },
+    "momentum_ready_symbols": [],
+    "volume_quality_failures": {},
+    "feeds": [
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": 1793437151960
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      }
+    ]
+  },
+  "paper-config": {
+    "revision": 0,
+    "configuration": {
+      "initial_cash": "600",
+      "per_order_budget": "300",
+      "max_positions": 2,
+      "fee_policy": "BINANCE_OFFICIAL_DYNAMIC",
+      "max_daily_loss": "6.00",
+      "max_exposure": "600",
+      "max_daily_symbols": 5
+    },
+    "initial_cash_locked": false
+  },
+  "post_restart_status": {
+    "health": "DEGRADED",
+    "mode": "WATCH_ONLY",
+    "paper_mode": true,
+    "live_trading_enabled": false,
+    "version": "0.5.0",
+    "market_phase": "MARKET_CLOSED",
+    "market_connection": "CONNECTED",
+    "candidate_count": 479,
+    "supported_count": 474,
+    "focus_count": 9,
+    "focus_symbols": [
+      "NVDA",
+      "AAPL",
+      "MSFT",
+      "AVGO",
+      "AMD",
+      "GOOGL",
+      "META",
+      "NFLX",
+      "NYT"
+    ],
+    "observed_symbols": 0,
+    "rules_verified": true,
+    "rules_checked_ms": 1793437228749,
+    "blockers": [
+      "PAPER_VERIFICATION_REQUIRED",
+      "FEES_NOT_VERIFIED",
+      "VOLUME_NOT_VERIFIED"
+    ],
+    "heartbeat_ms": 1793437229043,
+    "paper_config": {
+      "initial_cash": "600",
+      "per_order_budget": "300",
+      "max_positions": 2,
+      "fee_policy": "BINANCE_OFFICIAL_DYNAMIC",
+      "max_daily_loss": "6.00",
+      "max_exposure": "600",
+      "max_daily_symbols": 5
+    },
+    "paper_pipeline_connected": true,
+    "paper_account_initialized": false,
+    "trading_modes": {
+      "mode": "PAPER",
+      "revision": 2,
+      "updated_ms": 1793437172893,
+      "paper_enabled": true,
+      "live_enabled": false,
+      "live_available": false,
+      "live_blockers": [
+        "LIVE_EXECUTION_NOT_CONNECTED",
+        "LIVE_ACCOUNT_NOT_RECONCILED",
+        "LIVE_FEES_NOT_VERIFIED",
+        "LIVE_INSTRUMENT_METADATA_NOT_VERIFIED"
+      ],
+      "off_behavior": "STOP_NEW_ENTRIES_KEEP_POSITION_PROTECTION",
+      "live_scope": {
+        "buy_wallet": "MAIN",
+        "quote_asset": "USDC",
+        "sell_settlement_wallet": "CARD",
+        "settlement_accepted": true,
+        "automatic_transfers": false,
+        "listing_country": "US",
+        "security_types": [
+          "STOCK",
+          "ETF"
+        ],
+        "instrument_form": "UNDERLYING_SECURITY",
+        "tokenize": false,
+        "unverified_instruments": "REJECT"
+      },
+      "control_configured": true
+    },
+    "momentum_ready_symbols": [],
+    "volume_quality_failures": {},
+    "feeds": [
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      }
+    ]
+  }
+}

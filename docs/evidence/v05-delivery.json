@@ -1,0 +1,29 @@
+{
+  "version": "0.5.0",
+  "release": "v05-20261031T085742Z",
+  "python_local_tests": 128,
+  "python_server_tests": 128,
+  "android_jvm_tests": 5,
+  "builds": [
+    "debug",
+    "release"
+  ],
+  "lint": {
+    "debug": {
+      "Error": 0,
+      "Warning": 10,
+      "Fatal": 0
+    },
+    "release": {
+      "Error": 0,
+      "Warning": 8,
+      "Fatal": 0
+    }
+  },
+  "release_signature_sha256": "20e442ec2311c45c6bbf702017bbd5c07284cceda5cad591eba24d7832632fa5",
+  "device_test": "NOT_TESTED_NO_CONNECTED_DEVICE_OR_AVD",
+  "production_status": "DEPLOYED_VERIFIED",
+  "live_execution": "NOT_DONE_DISABLED",
+  "apk_downloads": "HTTPS_200_SHA256_MATCH",
+  "mode_budget_restart_tests": "PASS"
+}

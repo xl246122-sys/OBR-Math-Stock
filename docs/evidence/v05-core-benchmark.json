@@ -1,0 +1,58 @@
+{
+  "provenance": "SYNTHETIC_CORE_ONLY",
+  "python": "3.11.5 (tags/v3.11.5:cce6ba9, Aug 24 2023, 14:38:34) [MSC v.1936 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "excludes": [
+    "network",
+    "queue",
+    "storage",
+    "broker"
+  ],
+  "runs": [
+    {
+      "symbols": 10,
+      "events": 780,
+      "candidates": 10,
+      "p50_ms": 0.0045,
+      "p95_ms": 0.005,
+      "p99_ms": 0.0122,
+      "max_ms": 0.0678
+    },
+    {
+      "symbols": 50,
+      "events": 3900,
+      "candidates": 50,
+      "p50_ms": 0.0045,
+      "p95_ms": 0.0076,
+      "p99_ms": 0.0118,
+      "max_ms": 0.1092
+    },
+    {
+      "symbols": 100,
+      "events": 7800,
+      "candidates": 100,
+      "p50_ms": 0.0044,
+      "p95_ms": 0.0066,
+      "p99_ms": 0.0115,
+      "max_ms": 0.0534
+    },
+    {
+      "symbols": 200,
+      "events": 15600,
+      "candidates": 200,
+      "p50_ms": 0.0043,
+      "p95_ms": 0.0065,
+      "p99_ms": 0.0105,
+      "max_ms": 0.1156
+    },
+    {
+      "symbols": 300,
+      "events": 23400,
+      "candidates": 300,
+      "p50_ms": 0.0044,
+      "p95_ms": 0.0069,
+      "p99_ms": 0.0113,
+      "max_ms": 0.1787
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "candidates": 479,
+  "import_errors": [
+    {
+      "line": 478,
+      "reason": "DUPLICATE",
+      "value": "BA"
+    }
+  ],
+  "supported": 474,
+  "buy_sell": 472,
+  "unsupported": [
+    "EA",
+    "EQR",
+    "IBUY",
+    "MPLX",
+    "PARA"
+  ],
+  "requested_symbols": {
+    "BA": true,
+    "NBIS": true,
+    "WDC": true,
+    "MSTR": true
+  }
+}

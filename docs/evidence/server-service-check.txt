@@ -1,0 +1,10 @@
+health {"alive":true}
+unauthenticated_status 401
+authenticated_status {"health":"DEGRADED","mode":"WATCH_ONLY","paper_mode":true,"live_trading_enabled":false,"version":"0.1.0","performance":"NOT_TESTED","market_connection":"NOT_STARTED","blockers":["UNIVERSE_NOT_VERIFIED","VOLUME_NOT_VERIFIED","FEES_NOT_VERIFIED"]}
+ActiveState=active
+SubState=running
+MainPID=172819
+MemoryCurrent=36507648
+User=obr-math
+State  Recv-Q Send-Q Local Address:Port Peer Address:Port
+LISTEN 0      2048       127.0.0.1:8765      0.0.0.0:*   

@@ -1,0 +1,55 @@
+{
+  "source": "https://www.binance.com/en/fee/stocks",
+  "product": "DIRECT_US_EQUITIES",
+  "checked_ms": 1793410173702,
+  "retrieval": "Official page read through browser/web tool; direct HTTP returned 202 empty",
+  "terms": {
+    "currency": "USD",
+    "account_applicability": "UNVERIFIED",
+    "rules": [
+      {
+        "id": "standard_spread",
+        "rate": "0.001",
+        "trade_value_min": "340",
+        "effective_ms": null,
+        "expires_ms": null,
+        "note": "Standard rate shown beside promotional rate; below-threshold standard minimum not present in retrieved fee table."
+      },
+      {
+        "id": "promotional_spread",
+        "rate": "0.0005",
+        "trade_value_min": "340",
+        "effective_ms": null,
+        "expires_ms": 1798761600000,
+        "note": "Promotion until 2026-12-31 23:59 UTC; replaces standard spread while applicable."
+      },
+      {
+        "id": "vip_stock_fees",
+        "effective_ms": 1793952000000,
+        "expires_ms": null,
+        "minimum_per_order": "0.17",
+        "tiers": {
+          "VIP1-3": "0.0005",
+          "VIP4-7": "0.0004",
+          "VIP8-9": "0.0003"
+        },
+        "requires": "Binance app 3.21.0 or later; earlier versions charged standard rate; API eligibility not established"
+      },
+      {
+        "id": "other_costs",
+        "effective_ms": null,
+        "expires_ms": null,
+        "account_fees": "0",
+        "USDC_USD_conversion": "0",
+        "other_crypto_conversion": "market spread",
+        "SEC_FINRA_CAT": "absorbed by Binance",
+        "ADR_per_share": "0.01-0.05",
+        "dividend_processing": "0",
+        "default_US_withholding": "30%",
+        "mandatory_corporate_action": "0",
+        "voluntary_corporate_action": "200",
+        "outgoing_DTC_per_security": "150"
+      }
+    ]
+  }
+}

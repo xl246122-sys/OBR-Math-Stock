@@ -1,0 +1,153 @@
+{
+  "status_before_restart": {
+    "health": "DEGRADED",
+    "mode": "WATCH_ONLY",
+    "paper_mode": true,
+    "live_trading_enabled": false,
+    "version": "0.2.0",
+    "market_phase": "RTH_CLOSED",
+    "market_connection": "CONNECTED",
+    "candidate_count": 479,
+    "supported_count": 474,
+    "focus_count": 9,
+    "focus_symbols": [
+      "NVDA",
+      "AAPL",
+      "MSFT",
+      "AVGO",
+      "AMD",
+      "GOOGL",
+      "META",
+      "NFLX",
+      "NYT"
+    ],
+    "observed_symbols": 114,
+    "rules_verified": true,
+    "rules_checked_ms": 1793408894079,
+    "blockers": [
+      "VOLUME_NOT_VERIFIED",
+      "HISTORICAL_VOLUME_COLD_START",
+      "FEES_NOT_VERIFIED",
+      "PAPER_BUDGET_NOT_CONFIGURED",
+      "AUTO_TRADING_NOT_CONNECTED"
+    ],
+    "heartbeat_ms": 1793408962901,
+    "feeds": [
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": 1793408962321
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      }
+    ]
+  },
+  "metrics_before_restart": {
+    "counts_since_process_start": {
+      "messages": 20
+    },
+    "uptime_seconds": 60.02061374299956,
+    "processing": {
+      "samples": 20,
+      "p50_ms": 0.048769,
+      "p95_ms": 0.065159,
+      "p99_ms": 0.065159
+    },
+    "queue_wait": {
+      "samples": 20,
+      "p50_ms": 0.049288,
+      "p95_ms": 0.066228,
+      "p99_ms": 0.066228
+    },
+    "source_age": {
+      "samples": 116,
+      "p50_ms": 4209594,
+      "p95_ms": 5924940,
+      "p99_ms": 5936644
+    },
+    "window": "last_10000_samples",
+    "cpu_percent_one_core": 0.16662472149793875,
+    "rss_bytes": 77049856,
+    "disk_free_ratio": 0.8282796297005859,
+    "disk_free_bytes": 43208822784
+  },
+  "unauthenticated": {
+    "status": 401,
+    "signals": 401,
+    "metrics": 401,
+    "reports": 401,
+    "alerts": 401,
+    "universe": 401,
+    "positions": 401,
+    "outcomes": 401
+  },
+  "report_count": 1,
+  "report_sample": "# OBR Math 中文日报 — 2026-10-30\n\n- 日历状态：VERIFIED_SESSION\n- 运行模式：WATCH_ONLY；真实交易关闭。\n- 候选池：479；重点订阅：9。\n- 已保存K线：0；信号状态计数：{}。\n- 内部处理最近窗口：{'status': 'NOT_TESTED', 'samples': 0}。\n- 源行情年龄（独立口径）：{'status': 'NOT_TESTED', 'samples': 0}。\n- CPU单核占比：0.0%；RSS：61194240字节。\n- 数据完整度：PARTIAL_OBSERVATION；指标为生成时最新快照，消息计数为进程启动以来，延迟为最近窗口，非全日聚合。\n- 自动模拟交易尚未启用；不报告虚构订单、收益或退出记录。\n\n## 待处理事项\n\n- 量能未验证：有效交易时段采集形成中K线及历史同进度成交量。\n",
+  "db_integrity": "ok",
+  "metrics_rows_before": 14,
+  "backups": [
+    "/var/lib/obr-math/backups/2026-10-30.db"
+  ],
+  "backup_integrity": "ok",
+  "key_file_mode": "0o600",
+  "status_after_restart": {
+    "health": "DEGRADED",
+    "mode": "WATCH_ONLY",
+    "paper_mode": true,
+    "live_trading_enabled": false,
+    "version": "0.2.0",
+    "market_phase": "RTH_CLOSED",
+    "market_connection": "CONNECTED",
+    "candidate_count": 479,
+    "supported_count": 474,
+    "focus_count": 9,
+    "focus_symbols": [
+      "NVDA",
+      "AAPL",
+      "MSFT",
+      "AVGO",
+      "AMD",
+      "GOOGL",
+      "META",
+      "NFLX",
+      "NYT"
+    ],
+    "observed_symbols": 0,
+    "rules_verified": true,
+    "rules_checked_ms": 1793408965448,
+    "blockers": [
+      "VOLUME_NOT_VERIFIED",
+      "HISTORICAL_VOLUME_COLD_START",
+      "FEES_NOT_VERIFIED",
+      "PAPER_BUDGET_NOT_CONFIGURED",
+      "AUTO_TRADING_NOT_CONNECTED"
+    ],
+    "heartbeat_ms": 1793408966061,
+    "feeds": [
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      }
+    ]
+  },
+  "metrics_rows_after": 15,
+  "reports_after": 1,
+  "systemd": "ActiveState=active\nSubState=running\nNRestarts=0\nMemoryCurrent=54611968\nUser=obr-math\n"
+}

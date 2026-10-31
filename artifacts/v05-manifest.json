@@ -1,0 +1,14 @@
+{
+  "OBR-Math-0.5.0-backend.tar.gz": {
+    "sha256": "56873b2b1005cb0a7310618b1c810bb8b5c5440d4eb645d7402269adf6886230",
+    "bytes": 89483
+  },
+  "OBR-Math-0.5.0.apk": {
+    "sha256": "22da0dc0a293f135a950c1337fbdd5ac74ee63ab3f3162f6823c45ea22eb980b",
+    "bytes": 6874620
+  },
+  "OBR-Math-0.5.0-debug.apk": {
+    "sha256": "b497bcc6d942dc09c994a998e496b355e346531fa48b773665bd23fea03eb913",
+    "bytes": 9270059
+  }
+}

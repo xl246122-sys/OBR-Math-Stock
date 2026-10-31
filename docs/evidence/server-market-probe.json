@@ -1,0 +1,958 @@
+[
+  {
+    "stream": "price",
+    "started_utc": "2026-10-31T00:19:27.828367+00:00",
+    "message_count": 220,
+    "connected": true,
+    "samples": [
+      {
+        "received_utc_ms": 1793406329850,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406332852,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406335853,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406338854,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406341854,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406344866,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406347862,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "MSTR",
+              "ac": "EQ_MSTR",
+              "p": "132.046",
+              "t": 1793404791667,
+              "pc": "141.5000",
+              "tc": "130.5100",
+              "lrc": "130.5100",
+              "prc": "141.6200",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406350861,
+        "message": {
+          "e": "price",
+          "symbol_count": 99,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406353861,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406356863,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406359865,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406362870,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406365866,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406368868,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "MSTR",
+              "ac": "EQ_MSTR",
+              "p": "132.046",
+              "t": 1793404791667,
+              "pc": "141.5000",
+              "tc": "130.5100",
+              "lrc": "130.5100",
+              "prc": "141.6200",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406371871,
+        "message": {
+          "e": "price",
+          "symbol_count": 99,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406374872,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406377876,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406380877,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406383877,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406386878,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406389879,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406392883,
+        "message": {
+          "e": "price",
+          "symbol_count": 99,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406395884,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406398883,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406401885,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406404887,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406407888,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406410891,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "NBIS",
+              "ac": "EQ_NBIS",
+              "p": "155.625",
+              "t": 1793404797363,
+              "pc": "171.9300",
+              "tc": "154.5000",
+              "lrc": "154.1000",
+              "prc": "171.9900",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406413892,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406416894,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406419894,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406422896,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406425897,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406428897,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406431902,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406434903,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406437904,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406440905,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406443906,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406446907,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406449908,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406452912,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406455911,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406458912,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406461915,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406464915,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406467917,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406470918,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406473919,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406476921,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406479922,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406482922,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406485925,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406488928,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406491928,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406494931,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406497930,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406500931,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406503933,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406506932,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406509934,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406512934,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "WDC",
+              "ac": "EQ_WDC",
+              "p": "367.932",
+              "t": 1793404812363,
+              "pc": "397.2100",
+              "tc": "363.0000",
+              "lrc": "365.9300",
+              "prc": "395.4100",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406515940,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406518941,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406521941,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406524941,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406527942,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406530944,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406533946,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406536948,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406539947,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406542948,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406545952,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406548952,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "AAPL",
+              "ac": "EQ_AAPL",
+              "p": "345.1",
+              "t": 1793404786666,
+              "pc": "348.8300",
+              "tc": "345.0000",
+              "lrc": "344.8000",
+              "prc": "348.9100",
+              "mp": "C"
+            },
+            {
+              "s": "MSTR",
+              "ac": "EQ_MSTR",
+              "p": "132.046",
+              "t": 1793404791667,
+              "pc": "141.5000",
+              "tc": "130.5100",
+              "lrc": "130.5100",
+              "prc": "141.6200",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406551952,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "NBIS",
+              "ac": "EQ_NBIS",
+              "p": "155.625",
+              "t": 1793404797363,
+              "pc": "171.9300",
+              "tc": "154.5000",
+              "lrc": "154.1000",
+              "prc": "171.9900",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406554956,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406557955,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406560957,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406563958,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406566959,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406569964,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406572963,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "BA",
+              "ac": "EQ_BA",
+              "p": "171.38",
+              "t": 1793404792188,
+              "pc": "172.6500",
+              "tc": "171.5500",
+              "lrc": "171.5600",
+              "prc": "172.6500",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406575963,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406578965,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406581966,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "AAPL",
+              "ac": "EQ_AAPL",
+              "p": "345.1",
+              "t": 1793404786666,
+              "pc": "348.8300",
+              "tc": "345.0000",
+              "lrc": "344.8000",
+              "prc": "348.9100",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406584966,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406587968,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406590971,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406593972,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406597036,
+        "message": {
+          "e": "price",
+          "symbol_count": 99,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406599976,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406602976,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406605979,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "MSTR",
+              "ac": "EQ_MSTR",
+              "p": "132.046",
+              "t": 1793404791667,
+              "pc": "141.5000",
+              "tc": "130.5100",
+              "lrc": "130.5100",
+              "prc": "141.6200",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406608978,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406611980,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406614981,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406617989,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": [
+            {
+              "s": "BA",
+              "ac": "EQ_BA",
+              "p": "171.38",
+              "t": 1793404792188,
+              "pc": "172.6500",
+              "tc": "171.5500",
+              "lrc": "171.5600",
+              "prc": "172.6500",
+              "mp": "C"
+            }
+          ]
+        }
+      },
+      {
+        "received_utc_ms": 1793406620983,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406623986,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      },
+      {
+        "received_utc_ms": 1793406626988,
+        "message": {
+          "e": "price",
+          "symbol_count": 100,
+          "rates": []
+        }
+      }
+    ],
+    "finished_utc": "2026-10-31T00:30:29.875387+00:00"
+  },
+  {
+    "stream": "AAPL@quote",
+    "started_utc": "2026-10-31T00:19:27.831645+00:00",
+    "message_count": 0,
+    "connected": true,
+    "samples": [],
+    "finished_utc": "2026-10-31T00:30:29.869823+00:00"
+  },
+  {
+    "stream": "AAPL@kline_5m",
+    "started_utc": "2026-10-31T00:19:27.832178+00:00",
+    "message_count": 0,
+    "connected": true,
+    "samples": [],
+    "finished_utc": "2026-10-31T00:30:29.871071+00:00"
+  }
+]

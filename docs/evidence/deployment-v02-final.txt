@@ -1,0 +1,9 @@
+.............................................................            [100%]
+=============================== warnings summary ===============================
+../../.venv/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /opt/obr-math/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+61 passed, 1 warning in 0.48s
+{"release": "/opt/obr-math/releases/v02-20261031T010743Z", "status": {"health": "DEGRADED", "mode": "WATCH_ONLY", "paper_mode": true, "live_trading_enabled": false, "version": "0.2.0", "market_phase": "RTH_CLOSED", "market_connection": "CONNECTED", "candidate_count": 479, "supported_count": 474, "focus_count": 9, "focus_symbols": ["NVDA", "AAPL", "MSFT", "AVGO", "AMD", "GOOGL", "META", "NFLX", "NYT"], "observed_symbols": 0, "rules_verified": true, "rules_checked_ms": 1793408894079, "blockers": ["VOLUME_NOT_VERIFIED", "HISTORICAL_VOLUME_COLD_START", "FEES_NOT_VERIFIED", "PAPER_BUDGET_NOT_CONFIGURED", "AUTO_TRADING_NOT_CONNECTED"], "heartbeat_ms": 1793408894614, "feeds": [{"connected": true, "queue": 0, "dropped": 0, "reconnects": 0, "last_received_ms": null}, {"connected": true, "queue": 0, "dropped": 0, "reconnects": 0, "last_received_ms": null}]}}

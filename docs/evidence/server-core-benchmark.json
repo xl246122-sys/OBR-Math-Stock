@@ -1,0 +1,58 @@
+{
+  "provenance": "SYNTHETIC_CORE_ONLY",
+  "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "platform": "Linux-7.0.0-30-generic-x86_64-with-glibc2.43",
+  "excludes": [
+    "network",
+    "queue",
+    "storage",
+    "broker"
+  ],
+  "runs": [
+    {
+      "symbols": 10,
+      "events": 780,
+      "candidates": 10,
+      "p50_ms": 0.004671,
+      "p95_ms": 0.00549,
+      "p99_ms": 0.01366,
+      "max_ms": 0.075478
+    },
+    {
+      "symbols": 50,
+      "events": 3900,
+      "candidates": 50,
+      "p50_ms": 0.00478,
+      "p95_ms": 0.00687,
+      "p99_ms": 0.01115,
+      "max_ms": 0.059178
+    },
+    {
+      "symbols": 100,
+      "events": 7800,
+      "candidates": 100,
+      "p50_ms": 0.00472,
+      "p95_ms": 0.006509,
+      "p99_ms": 0.01121,
+      "max_ms": 0.063218
+    },
+    {
+      "symbols": 200,
+      "events": 15600,
+      "candidates": 200,
+      "p50_ms": 0.004839,
+      "p95_ms": 0.00624,
+      "p99_ms": 0.011249,
+      "max_ms": 0.060709
+    },
+    {
+      "symbols": 300,
+      "events": 23400,
+      "candidates": 300,
+      "p50_ms": 0.00491,
+      "p95_ms": 0.00585,
+      "p99_ms": 0.012,
+      "max_ms": 0.081258
+    }
+  ]
+}

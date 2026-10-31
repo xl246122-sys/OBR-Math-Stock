@@ -1,0 +1,78 @@
+Looking in indexes: http://mirrors.tencentyun.com/pypi/simple
+Processing /opt/obr-math
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting fastapi<1,>=0.115 (from obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/b4/4f/3f2c25c9b43970b5e9a08beb5e04776247edea684ddc0930f4f02f0bb6cb/fastapi-0.162.0-py3-none-any.whl (148 kB)
+Collecting uvicorn<1,>=0.30 (from obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/38/0c/b54a4fdd7f90a3af8b02ebc9ce6712c2c208b7926a2f7bad95c33ebbe943/uvicorn-0.54.0-py3-none-any.whl (87 kB)
+Collecting websockets<17,>=14 (from obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/c9/d5/abc614d2297f6c1c3e01e61260364457a47c25cc1cf6a879038902bc6aa8/websockets-16.1.1-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (187 kB)
+Collecting tzdata>=2025.1 (from obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/0a/66/9a06c2227fedfd4919f0eaaa8b94377d9730882a7e4f95823c9a331ab5e1/tzdata-2026.6-py2.py3-none-any.whl (348 kB)
+Collecting pytest<10,>=8 (from obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/51/39/1f5d8c8877a0fa327db959c19341d4be61660de1ab6b7391f9eb805bcd67/pytest-9.2.0-py3-none-any.whl (411 kB)
+Collecting httpx<1,>=0.27 (from obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl (73 kB)
+Collecting starlette>=0.46.0 (from fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/88/2e/947cfe02def9371c07cd5bf5b6b61c829e9aecb9904db02a66cfafbc1eec/starlette-1.10.0-py3-none-any.whl (80 kB)
+Collecting pydantic>=2.9.0 (from fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/97/01/c71a71258b58659c72504e5fd65b451f6e36e34dc931d0b237ded213c814/pydantic-2.14.2-py3-none-any.whl (490 kB)
+Collecting typing-extensions>=4.8.0 (from fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Collecting typing-inspection>=0.4.2 (from fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Collecting annotated-doc>=0.0.2 (from fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/3e/30/e900b21425a860e195f32e37657aa1f7c7f2b1bfb26f03ca209b90933c06/annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Collecting opentelemetry-api>=1.44.0 (from fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a9/2d/610db864d7513158cebb8f36cc88e67e73bd6c7aa1905ef18d89e1281c81/opentelemetry_api-1.45.2-py3-none-any.whl (60 kB)
+Collecting anyio (from httpx<1,>=0.27->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/12/b8/4bd346e22b28902df4d651910f5242c28d84e4a5c2435ca5c3f797ed7e2e/anyio-4.15.1-py3-none-any.whl (132 kB)
+Collecting certifi (from httpx<1,>=0.27->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/32/d1/a3652fe2c19134d0d15922177821d863cbd7e842d53a21bbe7e8e3a1b5ac/certifi-2026.10.23-py3-none-any.whl (135 kB)
+Collecting httpcore==1.* (from httpx<1,>=0.27->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl (78 kB)
+Collecting idna (from httpx<1,>=0.27->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl (69 kB)
+Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.27->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl (37 kB)
+Collecting iniconfig>=2 (from pytest<10,>=8->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/56/43/4ca9e49d27a1fcf6bece6f6aec0ea46bb9112489b93d4b688fb415457bdb/iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Collecting packaging>=24 (from pytest<10,>=8->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl (129 kB)
+Collecting pluggy<2,>=1.6 (from pytest<10,>=8->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/40/9e/2b38731e0fc536806f16490e1a12d7f0dc2a1235aa8cc07bcc75416a7daa/pluggy-1.7.0-py3-none-any.whl (27 kB)
+Collecting pygments>=2.15 (from pytest<10,>=8->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl (1.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 20.2 MB/s eta 0:00:00
+Collecting click>=7.0 (from uvicorn<1,>=0.30->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl (125 kB)
+Collecting annotated-types>=0.6.0 (from pydantic>=2.9.0->fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/99/91/8acff4f5e50511b911bbccb72b8628a49c68ce14148cd9f6431094859a90/annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Collecting pydantic-core==2.50.2 (from pydantic>=2.9.0->fastapi<1,>=0.115->obr-math==0.1.0)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/9d/a2/8eeabaf1d394f0d3b9a27129ac21556eabee6f2ddcb418069ef4037e00b0/pydantic_core-2.50.2-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 20.4 MB/s eta 0:00:00
+Building wheels for collected packages: obr-math
+  Building wheel for obr-math (pyproject.toml): started
+  Building wheel for obr-math (pyproject.toml): finished with status 'done'
+  Created wheel for obr-math: filename=obr_math-0.1.0-py3-none-any.whl size=9419 sha256=c1830f248ebf003ebc6d2f666959c6968c46d6cc2fd2fff03033e477d363b894
+  Stored in directory: /root/.cache/pip/wheels/3a/0d/71/4d6e52b488025682a7ad9c4486aaa671a1058d915ee4af42ea
+Successfully built obr-math
+Installing collected packages: websockets, tzdata, typing-extensions, pygments, pluggy, packaging, iniconfig, idna, h11, click, certifi, annotated-types, annotated-doc, uvicorn, typing-inspection, pytest, pydantic-core, opentelemetry-api, httpcore, anyio, starlette, pydantic, httpx, fastapi, obr-math
+
+Successfully installed annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 certifi-2026.10.23 click-8.5.0 fastapi-0.162.0 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 idna-3.20 iniconfig-2.3.1 obr-math-0.1.0 opentelemetry-api-1.45.2 packaging-26.3 pluggy-1.7.0 pydantic-2.14.2 pydantic-core-2.50.2 pygments-2.21.0 pytest-9.2.0 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.4 tzdata-2026.6 uvicorn-0.54.0 websockets-16.1.1
+...........................                                              [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /opt/obr-math/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+27 passed, 1 warning in 0.29s
+active
+
+Created symlink '/etc/systemd/system/multi-user.target.wants/obr-math.service' → '/etc/systemd/system/obr-math.service'.

@@ -1,0 +1,131 @@
+{
+  "checked_utc": "2026-10-31T08:09:36.635722+00:00",
+  "release": "v04-20261031T080910Z",
+  "server_tests_passed": 96,
+  "https": {
+    "unauthenticated_status": 401,
+    "status": 200,
+    "positions": 200,
+    "metrics": 200,
+    "signals": 200,
+    "universe": 200,
+    "alerts": 200,
+    "fees": 200,
+    "reports": 200
+  },
+  "status": {
+    "health": "DEGRADED",
+    "mode": "WATCH_ONLY",
+    "paper_mode": true,
+    "live_trading_enabled": false,
+    "version": "0.4.0",
+    "market_phase": "MARKET_CLOSED",
+    "market_connection": "CONNECTED",
+    "candidate_count": 479,
+    "supported_count": 474,
+    "focus_count": 9,
+    "focus_symbols": [
+      "NVDA",
+      "AAPL",
+      "MSFT",
+      "AVGO",
+      "AMD",
+      "GOOGL",
+      "META",
+      "NFLX",
+      "NYT"
+    ],
+    "observed_symbols": 40,
+    "rules_verified": true,
+    "rules_checked_ms": 1793434157934,
+    "blockers": [
+      "PAPER_VERIFICATION_REQUIRED",
+      "FEES_NOT_VERIFIED",
+      "VOLUME_NOT_VERIFIED"
+    ],
+    "heartbeat_ms": 1793434178235,
+    "paper_config": {
+      "initial_cash": "600",
+      "per_order_budget": "300",
+      "max_positions": 2,
+      "fee_policy": "BINANCE_OFFICIAL_DYNAMIC",
+      "max_daily_loss": "6.00",
+      "max_exposure": "600",
+      "max_daily_symbols": 5
+    },
+    "paper_pipeline_connected": true,
+    "paper_account_initialized": false,
+    "momentum_ready_symbols": [],
+    "volume_quality_failures": {},
+    "feeds": [
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": 1793434177269
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      },
+      {
+        "connected": true,
+        "queue": 0,
+        "dropped": 0,
+        "reconnects": 0,
+        "last_received_ms": null
+      }
+    ]
+  },
+  "positions": {
+    "enabled": false,
+    "reason": "PAPER_VERIFICATION_REQUIRED",
+    "positions": [],
+    "configuration": {
+      "initial_cash": "600",
+      "per_order_budget": "300",
+      "max_positions": 2,
+      "fee_policy": "BINANCE_OFFICIAL_DYNAMIC",
+      "max_daily_loss": "6.00",
+      "max_exposure": "600",
+      "max_daily_symbols": 5
+    },
+    "pipeline_connected": true,
+    "fee_status": "UNVERIFIED",
+    "entry_blockers": [
+      "PAPER_VERIFICATION_REQUIRED",
+      "FEES_NOT_VERIFIED",
+      "VOLUME_NOT_VERIFIED"
+    ]
+  },
+  "server_checks": {
+    "services": {
+      "output": "active\nactive\nactive\nactive\n",
+      "exit_code": 0
+    },
+    "isolation": {
+      "output": "DropInPaths=/etc/systemd/system/obr-math.service.d/security.conf\nMainPID=11574\nNRestarts=0\nWorkingDirectory=/opt/obr-math/releases/v04-20261031T080910Z\nUser=obr-math\nProtectSystem=strict\nNoNewPrivileges=yes\n",
+      "exit_code": 0
+    },
+    "nginx": {
+      "output": "nginx: the configuration file /etc/nginx/nginx.conf syntax is ok\nnginx: configuration file /etc/nginx/nginx.conf test is successful\n",
+      "exit_code": 0
+    },
+    "firewall": {
+      "output": "Status: active\n\nTo                         Action      From\n--                         ------      ----\n22/tcp                     ALLOW       Anywhere                  \n80/tcp                     ALLOW       Anywhere                  \n443/tcp                    ALLOW       Anywhere                  \n22/tcp (v6)                ALLOW       Anywhere (v6)             \n80/tcp (v6)                ALLOW       Anywhere (v6)             \n443/tcp (v6)               ALLOW       Anywhere (v6)             \n\n",
+      "exit_code": 0
+    },
+    "listeners": {
+      "output": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                                         \nLISTEN 0      511          0.0.0.0:80        0.0.0.0:*    users:((\"nginx\",pid=5360,fd=6),(\"nginx\",pid=5359,fd=6),(\"nginx\",pid=5357,fd=6))\nLISTEN 0      4096         0.0.0.0:22        0.0.0.0:*    users:((\"sshd\",pid=5352,fd=3),(\"systemd\",pid=1,fd=220))                        \nLISTEN 0      4096      127.0.0.54:53        0.0.0.0:*    users:((\"systemd-resolve\",pid=491,fd=19))                                      \nLISTEN 0      4096   127.0.0.53%lo:53        0.0.0.0:*    users:((\"systemd-resolve\",pid=491,fd=17))                                      \nLISTEN 0      2048       127.0.0.1:8765      0.0.0.0:*    users:((\"uvicorn\",pid=11574,fd=12))                                            \nLISTEN 0      511          0.0.0.0:443       0.0.0.0:*    users:((\"nginx\",pid=5360,fd=7),(\"nginx\",pid=5359,fd=7),(\"nginx\",pid=5357,fd=7))\nLISTEN 0      4096            [::]:22           [::]:*    users:((\"sshd\",pid=5352,fd=4),(\"systemd\",pid=1,fd=221))                        \n",
+      "exit_code": 0
+    },
+    "credentials_permissions": {
+      "output": "600 root /etc/obr-math/obr.env\n600 root /etc/obr-math/binance.env\n",
+      "exit_code": 0
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "version": "0.4.1-mode-preview",
+  "python_tests": 124,
+  "android_jvm_tests": 5,
+  "android_build": "SUCCESS",
+  "android_lint": "PASS",
+  "production_deployed": false,
+  "live_executor_implemented": false,
+  "real_orders_sent": false,
+  "apk": "D:\\OBR-Math\\artifacts\\OBR-Math-0.4.1-mode-preview-debug.apk",
+  "sha256": "e9c3700c9f5432b6cdbe5856a0f1c97e29d486892867b5716834b2f6a7bfc63c",
+  "scope_confirmed": {
+    "buy_wallet": "MAIN",
+    "asset": "USDC",
+    "sell_settlement_wallet": "CARD",
+    "automatic_transfers": false,
+    "security_types": [
+      "STOCK",
+      "ETF"
+    ],
+    "tokenize": false
+  }
+}

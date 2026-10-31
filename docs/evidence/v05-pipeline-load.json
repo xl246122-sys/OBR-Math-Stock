@@ -1,0 +1,102 @@
+{
+  "provenance": "SYNTHETIC_OFFLINE_PIPELINE",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.5 (tags/v3.11.5:cce6ba9, Aug 24 2023, 14:38:34) [MSC v.1936 64 bit (AMD64)]",
+  "excludes": [
+    "real WS network",
+    "live market load",
+    "real order routing"
+  ],
+  "runs": [
+    {
+      "symbols": 10,
+      "events": 120,
+      "processing": {
+        "p50_ms": 0.1829,
+        "p95_ms": 0.4044,
+        "p99_ms": 0.4732
+      },
+      "to_audit_batch_completion": {
+        "p50_ms": 15.2716,
+        "p95_ms": 27.112,
+        "p99_ms": 28.2911
+      },
+      "tracemalloc_peak_bytes": 394613,
+      "elapsed_ms": 47.0539,
+      "audit_failure": null,
+      "stored_bars": 120
+    },
+    {
+      "symbols": 50,
+      "events": 600,
+      "processing": {
+        "p50_ms": 0.1921,
+        "p95_ms": 0.3865,
+        "p99_ms": 0.6587
+      },
+      "to_audit_batch_completion": {
+        "p50_ms": 12.9366,
+        "p95_ms": 22.3976,
+        "p99_ms": 26.2576
+      },
+      "tracemalloc_peak_bytes": 761086,
+      "elapsed_ms": 210.564,
+      "audit_failure": null,
+      "stored_bars": 600
+    },
+    {
+      "symbols": 100,
+      "events": 1200,
+      "processing": {
+        "p50_ms": 0.1946,
+        "p95_ms": 0.3646,
+        "p99_ms": 0.4569
+      },
+      "to_audit_batch_completion": {
+        "p50_ms": 13.2216,
+        "p95_ms": 23.1579,
+        "p99_ms": 30.2583
+      },
+      "tracemalloc_peak_bytes": 1438366,
+      "elapsed_ms": 423.6632,
+      "audit_failure": null,
+      "stored_bars": 1200
+    },
+    {
+      "symbols": 200,
+      "events": 2400,
+      "processing": {
+        "p50_ms": 0.1931,
+        "p95_ms": 0.3848,
+        "p99_ms": 0.4897
+      },
+      "to_audit_batch_completion": {
+        "p50_ms": 13.3356,
+        "p95_ms": 23.1837,
+        "p99_ms": 35.1435
+      },
+      "tracemalloc_peak_bytes": 2469189,
+      "elapsed_ms": 847.7155,
+      "audit_failure": null,
+      "stored_bars": 2400
+    },
+    {
+      "symbols": 300,
+      "events": 3600,
+      "processing": {
+        "p50_ms": 0.1951,
+        "p95_ms": 0.3883,
+        "p99_ms": 0.5462
+      },
+      "to_audit_batch_completion": {
+        "p50_ms": 13.503,
+        "p95_ms": 24.9168,
+        "p99_ms": 35.7681
+      },
+      "tracemalloc_peak_bytes": 3596854,
+      "elapsed_ms": 1292.1008,
+      "audit_failure": null,
+      "stored_bars": 3600
+    }
+  ]
+}

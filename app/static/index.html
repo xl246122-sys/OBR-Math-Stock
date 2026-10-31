@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OBR Math · 运行监控</title><link rel="stylesheet" href="/static/style.css"><script defer src="/static/app.js"></script></head>
+<body>
+<header><a class="brand" href="/">OBR<span> / MATH</span></a><span class="version">运行监控 · V0.3</span><span class="pill">真实交易关闭</span></header>
+<main>
+<section id="login"><p class="eyebrow">PRIVATE MONITOR</p><h1>连接你的观察系统</h1><p class="muted">查看行情健康、研究信号和每日运行报告。</p><form id="login-form"><label for="token">访问令牌</label><div class="login-row"><input id="token" type="password" autocomplete="off" required placeholder="输入服务器监控令牌"><button type="submit">连接监控</button></div><p class="muted small">令牌仅保留在当前页面内存，刷新页面后需重新输入。</p></form></section>
+<div id="workspace" hidden>
+<section class="heading"><div><p class="eyebrow">OBSERVATION / RESEARCH</p><h1>系统运行概览</h1><p id="connection" class="muted">正在读取状态…</p></div><button id="logout" class="secondary">断开</button></section>
+<nav aria-label="监控栏目"><button data-tab="overview" class="active">概览</button><button data-tab="signals">信号</button><button data-tab="universe">股票池</button><button data-tab="reports">日报</button><button data-tab="alerts">告警</button></nav>
+<section id="overview" class="panel">
+<div class="cards"><article><p>运行状态</p><strong id="health">—</strong><small id="mode">—</small></article><article><p>已观察标的 / 候选</p><strong id="symbols">—</strong><small id="focus">—</small></article><article><p>内部处理 P95</p><strong id="latency">—</strong><small>接收后的最近样本窗口</small></article><article><p>进程内存</p><strong id="memory">—</strong><small id="uptime">—</small></article></div>
+<div class="split"><article class="surface"><h2>数据与交易条件</h2><p class="muted">观察模式持续采集数据。以下条件未满足前，不自动开仓。</p><ul id="blockers"></ul></article><article class="surface"><h2>行情连接</h2><div id="feeds"></div><p id="source-age" class="muted"></p><p class="note">源行情年龄与内部处理耗时分开统计。休市时无报价不等同于服务故障。</p></article></div>
+<article class="surface"><h2>重点订阅</h2><div id="focus-symbols" class="tags"></div><p class="muted small">先以小规模订阅验证数据质量；不会为了凑足数量自动扩大负载。</p></article>
+</section>
+<section id="signals" class="panel" hidden><h2>突破研究信号</h2><p class="muted">包含观察、拒绝及其原因；不等于已执行交易。</p><div id="signal-table" class="surface scroll"></div></section>
+<section id="universe" class="panel" hidden><h2>候选股票池</h2><p id="universe-summary" class="muted"></p><label for="search">查找代码</label><input id="search" placeholder="例如 AAPL、BA、NBIS"><div id="universe-table" class="surface scroll"></div></section>
+<section id="reports" class="panel" hidden><h2>中文运行日报</h2><p class="muted">按纽约日期，每天16:15生成；数据不完整时会注明。</p><div id="report-list" class="tags"></div><pre id="report-body" class="surface">选择日报查看。</pre></section>
+<section id="alerts" class="panel" hidden><h2>告警记录</h2><div id="alert-table" class="surface scroll"></div></section>
+</div>
+<p id="error" role="alert" hidden></p><footer>OBR Math · 仅模拟研究 · 所有时间以页面标注的时区为准</footer>
+</main>
+</body></html>

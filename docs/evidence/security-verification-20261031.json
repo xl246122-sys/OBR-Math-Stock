@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "runtime": {
+    "version": "0.3.0",
+    "mode": "WATCH_ONLY",
+    "market_connection": "CONNECTED",
+    "rules_verified": true
+  },
+  "metrics": 200,
+  "signals": 200,
+  "outcomes": 200,
+  "universe": 200,
+  "positions": 200,
+  "alerts": 200,
+  "reports": 200,
+  "fees": 200,
+  "unauthorized": 401,
+  "server_checks": "database_integrity ok\nStatus\n|- Number of jail:\t2\n`- Jail list:\tobr-api, sshd\n\nenabled 1\nfailure 1\npid 787\nrate_limit 0\nbacklog_limit 8192\nlost 0\nbacklog 0\nbacklog_wait_time 60000\nbacklog_wait_time_actual 0\nloginuid_immutable 0 unlocked\n\n"
+}

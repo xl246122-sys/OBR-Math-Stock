@@ -1,0 +1,21 @@
+[Unit]
+Description=OBR Math observation API
+After=network-online.target
+
+[Service]
+User=obr-math
+Group=obr-math
+WorkingDirectory=/opt/obr-math
+EnvironmentFile=/etc/obr-math/obr.env
+ExecStart=/opt/obr-math/.venv/bin/uvicorn app.api:create_app --factory --host 127.0.0.1 --port 8765
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/obr-math
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+[Unit]
+Description=Renew OBR IP TLS certificate
+[Service]
+Type=oneshot
+ExecStart=/opt/obr-certbot/bin/certbot renew --quiet

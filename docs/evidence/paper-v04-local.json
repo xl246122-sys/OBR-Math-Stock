@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-31",
+  "version": "0.4.0",
+  "python_tests_passed": 96,
+  "android_jvm_tests_passed": 5,
+  "android_build": "SUCCESS",
+  "android_lint": {
+    "Warning": 10
+  },
+  "device_validation": "NOT_PERFORMED",
+  "production_deployment": "DEPLOYED_VERIFIED_2026-10-31",
+  "live_trading_enabled": false,
+  "artifacts": [
+    {
+      "file": "D:\\OBR-Math\\artifacts\\OBR-Math-0.4.0-backend.tar.gz",
+      "bytes": 84379,
+      "sha256": "84f34af92c7a18a51b1e07e5925d37678071597aca8a378c848624c9fa5db0b4"
+    },
+    {
+      "file": "D:\\OBR-Math\\artifacts\\OBR-Math-0.4.0-debug.apk",
+      "bytes": 9237291,
+      "sha256": "102d36b8c2a15d709781646f873fe6ca73f4b37f61cb2922e2410ad2dca5190e"
+    }
+  ],
+  "paper_activation": "WAITING_FOR_OFFICIAL_ACCOUNT_FEES_AND_REAL_VOLUME_VERIFICATION",
+  "production_evidence": "paper-v04-production.json"
+}

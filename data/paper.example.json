@@ -1,0 +1,11 @@
+{
+  "paper_mode": true,
+  "live_trading_enabled": false,
+  "initial_cash": "600",
+  "per_order_budget": "300",
+  "max_positions": 2,
+  "max_daily_loss": "6",
+  "max_exposure": "600",
+  "max_daily_symbols": 5,
+  "fee_policy": "BINANCE_OFFICIAL_DYNAMIC"
+}
