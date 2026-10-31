@@ -73,6 +73,6 @@ def view(path, now_ms):
         return {**state,"status":"STALE" if stale else "CURRENT_PUBLIC_SCHEDULE",
                 "account_fee_verified":False,"source":SOURCE,
                 "active_rules_now":active_rules(state["observation"]["terms"],now_ms),
-                "schedule":"每日北京时间 09:00，由 Codex 定时核查官方页面"}
+                "schedule":"每日北京时间 09:00，由 Antigravity 定时核查官方页面"}
     except (OSError, ValueError, KeyError, TypeError):
         return {"status":"UNAVAILABLE","account_fee_verified":False,"source":SOURCE,"change":None}
