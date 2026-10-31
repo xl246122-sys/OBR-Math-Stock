@@ -23,6 +23,7 @@ from app.trading_modes import TradingModes
 from app.live_scope import public_scope, InstrumentRegistry
 from app.live_execution import LiveLedger, LiveRuntime
 from app.universe import select_tiered_focus
+from app.evolution import EvolutionEngine
 
 
 def _build_feed(feed_factory, streams, role):
@@ -69,6 +70,8 @@ class Runtime:
         saved_live = self.store.load_live_state()
         self.live_ledger = LiveLedger.restore(saved_live) if saved_live else None
         self.live = LiveRuntime(self.store, self.live_config, self.live_ledger)
+        self.evolution = EvolutionEngine(self.store, self.calendar, settings.data_dir)
+        self.active_parameters = self.evolution.active_parameters()
         self.paper_verified = readiness(settings.data_dir,self.now_ms())
         self.gate = QuoteGate(self.focus)
         self.metrics = Metrics()
@@ -155,6 +158,7 @@ class Runtime:
                 "blockers": blockers, "heartbeat_ms": now,
                 "paper_config": self.paper_config.public(),
                 "live_config": self.live_config.public(),
+                "active_strategy_version": self.active_parameters.version,
                 "paper_pipeline_connected":True,"paper_account_initialized":self.paper.account is not None,
                 "trading_modes":self.mode_status(),
                 "momentum_ready_symbols": [s for s,m in self.momentum.items() if all(v is not None for v in m.at(now).values())],
@@ -270,7 +274,7 @@ class Runtime:
         if engine is None or engine.session.day != local_day:
             if engine and local_day < engine.session.day:
                 return
-            engine = self.engines[bar.symbol] = OBRMathEngine(bar.symbol, session, Parameters(require_momentum=True,version="closed-bar-momentum-v2"))
+            engine = self.engines[bar.symbol] = OBRMathEngine(bar.symbol, session, self.active_parameters)
         if gap:
             engine.complete = False
         quote = self.quotes.get(bar.symbol)
@@ -319,6 +323,39 @@ class Runtime:
         return {"revision": self.live_config_revision, "configuration": self.live_config.public(),
                 "live_enabled": self.trading_modes.live_enabled, "paper_enabled": self.trading_modes.paper_enabled,
                 "shared_signal": True}
+
+    async def evolution_ai_context(self):
+        return await asyncio.to_thread(self.evolution.ai_context, self.now_ms())
+
+    async def evolution_reviews(self, period_type=None, limit=30):
+        await asyncio.to_thread(self.evolution.ensure_periodic_reviews, self.now_ms())
+        return {
+            "active_strategy_version": self.active_parameters.version,
+            "reviews": await asyncio.to_thread(self.store.list_evolution_reviews, period_type, limit),
+        }
+
+    async def trigger_evolution_review(self, period_type: str, ref_day=None, force: bool = True):
+        return await asyncio.to_thread(self.evolution.generate_review, period_type, ref_day, self.now_ms(), force)
+
+    async def evolution_versions(self):
+        return {
+            "active": await asyncio.to_thread(self.evolution.active_version),
+            "versions": await asyncio.to_thread(self.store.list_strategy_versions, 30),
+            "backtests": await asyncio.to_thread(self.store.list_backtest_runs, None, 20),
+        }
+
+    async def propose_strategy_version(self, version_id: str, parameters: dict, notes: str = ""):
+        return await asyncio.to_thread(self.evolution.propose_version, version_id, parameters, notes, self.now_ms())
+
+    async def backtest_strategy_version(self, version_id: str, split_ratio: float = 0.70):
+        return await asyncio.to_thread(self.evolution.backtest_version, version_id, split_ratio, self.now_ms())
+
+    async def promote_strategy_version(self, version_id: str):
+        async with self.trading_modes.lock:
+            promoted = await asyncio.to_thread(self.evolution.promote_version, version_id, self.now_ms())
+            self.active_parameters = await asyncio.to_thread(self.evolution.active_parameters)
+            self.engines.clear()
+            return promoted
 
     async def change_live_config(self, config, revision):
         async with self.trading_modes.lock:
@@ -456,6 +493,7 @@ class Runtime:
                 if await asyncio.to_thread(self.store.report, report_day.isoformat()) is None:
                     await asyncio.to_thread(daily_report, self.store, self.settings.data_dir/"reports", report_day,
                                             self.calendar, self.status(), self.last_snapshot, now)
+                await asyncio.to_thread(self.evolution.ensure_periodic_reviews, now)
                 backup = self.settings.data_dir/"backups"/f"{local.date()}.db"
                 if not backup.exists():
                     await asyncio.to_thread(self.store.backup, backup)

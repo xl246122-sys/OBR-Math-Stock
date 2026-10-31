@@ -42,6 +42,31 @@ class LiveConfigRequest(BaseModel):
     stop_loss_pct: str = Field(default="0.0080", max_length=16)
 
 
+class EvolutionReviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    period_type: Literal["DAILY", "TRADING_5D", "MONTHLY", "QUARTERLY", "SEMIANNUAL"]
+    ref_day: str | None = Field(default=None, max_length=16)
+    force: bool = True
+
+
+class ProposeVersionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    version_id: str = Field(min_length=1, max_length=64)
+    parameters: dict
+    notes: str = Field(default="", max_length=500)
+
+
+class BacktestVersionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    version_id: str = Field(min_length=1, max_length=64)
+    split_ratio: float = Field(default=0.70, ge=0.40, le=0.90)
+
+
+class PromoteVersionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    version_id: str = Field(min_length=1, max_length=64)
+
+
 def create_app(settings=None):
     settings = settings or Settings.from_env()
     @asynccontextmanager
@@ -207,5 +232,50 @@ def create_app(settings=None):
         import time
         from app.fee_watch import view
         return await asyncio.to_thread(view, settings.data_dir/"fee-watch.json", time.time_ns()//1000000)
+
+    @app.get("/api/v1/evolution/ai-context", dependencies=[Depends(authenticate)])
+    async def evolution_ai_context():
+        return await runtime().evolution_ai_context()
+
+    @app.get("/api/v1/evolution/reviews", dependencies=[Depends(authenticate)])
+    async def evolution_reviews(period_type: str | None = None):
+        return await runtime().evolution_reviews(period_type)
+
+    @app.post("/api/v1/evolution/review", dependencies=[Depends(authenticate), Depends(control_authorization)])
+    async def trigger_evolution_review(request: EvolutionReviewRequest):
+        try:
+            ref = date.fromisoformat(request.ref_day) if request.ref_day else None
+            return await runtime().trigger_evolution_review(request.period_type, ref, request.force)
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from None
+
+    @app.get("/api/v1/evolution/versions", dependencies=[Depends(authenticate)])
+    async def evolution_versions():
+        return await runtime().evolution_versions()
+
+    @app.post("/api/v1/evolution/propose", dependencies=[Depends(authenticate), Depends(control_authorization)])
+    async def propose_strategy_version(request: ProposeVersionRequest):
+        try:
+            return await runtime().propose_strategy_version(request.version_id, request.parameters, request.notes)
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from None
+
+    @app.post("/api/v1/evolution/backtest", dependencies=[Depends(authenticate), Depends(control_authorization)])
+    async def backtest_strategy_version(request: BacktestVersionRequest):
+        try:
+            return await runtime().backtest_strategy_version(request.version_id, request.split_ratio)
+        except KeyError as error:
+            raise HTTPException(404, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from None
+
+    @app.post("/api/v1/evolution/promote", dependencies=[Depends(authenticate), Depends(control_authorization)])
+    async def promote_strategy_version(request: PromoteVersionRequest):
+        try:
+            return await runtime().promote_strategy_version(request.version_id)
+        except KeyError as error:
+            raise HTTPException(404, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from None
 
     return app

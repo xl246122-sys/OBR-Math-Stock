@@ -10,7 +10,7 @@ android {
         applicationId = "com.obrmath.monitor"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
+        versionCode = 10
         versionName = "0.6.0"
     }
     buildFeatures { compose = true }

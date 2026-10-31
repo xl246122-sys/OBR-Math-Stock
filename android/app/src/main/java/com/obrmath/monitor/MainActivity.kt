@@ -77,9 +77,9 @@ class MainActivity: ComponentActivity() {
                 Button(onClick={vm.connect(base,token.trim())},enabled=!state.busy && token.isNotBlank()) { Text("连接") }
                 Text("默认仅在内存保留令牌。连接成功后可开启加密保存与后台提醒。")
             } else {
-                val pages=listOf("概览","信号","股票池","持仓","回放","手续费","日报","告警","设置")
+                val pages=listOf("概览","信号","股票池","持仓","进化","回放","手续费","日报","告警","设置")
                 ScrollableTabRow(selectedTabIndex=pages.indexOf(page),edgePadding=0.dp) {
-                    pages.forEach { name -> Tab(selected=page==name,onClick={page=name},text={Text(name)}) }
+                    pages.forEach { name -> Tab(selected=page==name,onClick={page=name;if(name=="进化") vm.loadEvolution()},text={Text(name)}) }
                 }
                 Row { TextButton(onClick=vm::refresh,enabled=!state.busy) { Text("刷新") }
                     TextButton(onClick=vm::disconnect) { Text("断开并清除后台凭据") } }
@@ -123,6 +123,29 @@ class MainActivity: ComponentActivity() {
                             items((d.positions.optJSONArray("orders")?.objects() ?: emptyList()).takeLast(30).reversed()) { row -> Record("${row.optString("symbol")} · ${row.optString("side")}","${row.optString("state")} · ${row.optString("reason")}\n数量 ${row.optString("quantity")} · 已成交 ${row.optString("filled")} · 限价 ${row.optString("limit")}") }
                             item { Text("最近模拟成交") }
                             items((d.positions.optJSONArray("fills")?.objects() ?: emptyList()).takeLast(30).reversed()) { row -> Record("${row.optString("symbol")} · ${row.optString("side")}","数量 ${row.optString("quantity")} · 价格 ${row.optString("price")} · 费用 ${row.optString("fee")}") }
+                        }
+                        "进化" -> {
+                            item {
+                                val act=state.evolution?.optJSONObject("active_strategy")
+                                val verId=act?.optString("version_id") ?: d.status.optString("active_strategy_version","closed-bar-momentum-v2")
+                                Record("自我进化与自动复盘引擎","当前稳定版本：$verId\n闭环流程：模拟/实盘记录 -> 5周期自动复盘 -> 外部 AI (Codex/Antigravity) 诊断优化 -> 历史回测+样本外验证 -> 安全晋升迭代")
+                            }
+                            item { Button(onClick=vm::loadEvolution,enabled=!state.busy) { Text("刷新全周期自动复盘与 AI 诊断") } }
+                            val latest=state.evolution?.optJSONObject("latest_reviews_by_period")
+                            if(latest!=null) {
+                                listOf("DAILY" to "每日复盘","TRADING_5D" to "每5个交易日复盘","MONTHLY" to "每月复盘","QUARTERLY" to "每季度复盘","SEMIANNUAL" to "每半年复盘").forEach { (k,title) ->
+                                    item { Record(title,evolutionPeriodSummary(latest.optJSONObject(k))) }
+                                }
+                            }
+                            val versions=state.evolution?.optJSONArray("strategy_versions")?.objects() ?: emptyList()
+                            if(versions.isNotEmpty()) {
+                                item { Text("策略与数学模型版本库（未通过样本外验证禁止覆盖稳定版）",style=MaterialTheme.typography.titleMedium) }
+                                items(versions) { v ->
+                                    val ev=v.optJSONObject("validation_evidence")
+                                    Record("${v.optString("version_id")} · ${v.optString("status")}",
+                                        "说明：${v.optString("notes")}\n样本外验证通过：${ev?.optBoolean("passed_validation")==true} · 样本外净收益：$${ev?.optString("out_of_sample_net_pnl","0")}")
+                                }
+                            }
                         }
                         "手续费" -> {
                             item { Record("官方费用核查",when(d.fees.optString("status")) { "CURRENT_PUBLIC_SCHEDULE" -> "公开规则已核查";"STALE" -> "核查已过期，等待更新";else -> "尚无有效核查记录" }) }

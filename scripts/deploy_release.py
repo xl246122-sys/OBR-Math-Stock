@@ -28,7 +28,7 @@ def main():
         raise ValueError("INVALID_API_KEY_FORMAT")
     release = Path("/opt/obr-math/releases")/version
     release.mkdir(parents=True, exist_ok=False)
-    for folder in ("app", "tests", "data"):
+    for folder in ("app", "tests", "data", "scripts"):
         shutil.copytree(staging/folder, release/folder, ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copy2(staging/"pyproject.toml", release/"pyproject.toml")
     # Code is readable by the service account regardless of the caller's umask.

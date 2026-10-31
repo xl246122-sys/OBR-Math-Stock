@@ -56,6 +56,38 @@ MIGRATIONS = (
      singleton INTEGER PRIMARY KEY CHECK(singleton=1), payload TEXT NOT NULL);
     INSERT OR IGNORE INTO schema_version VALUES (4);
     """),
+    (5, """
+    CREATE TABLE IF NOT EXISTS evolution_reviews (
+     review_id TEXT PRIMARY KEY,
+     period_type TEXT NOT NULL,
+     period_key TEXT NOT NULL,
+     start_ms INTEGER NOT NULL,
+     end_ms INTEGER NOT NULL,
+     generated_ms INTEGER NOT NULL,
+     markdown TEXT NOT NULL,
+     payload TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS evolution_reviews_period ON evolution_reviews(period_type, end_ms DESC);
+    CREATE TABLE IF NOT EXISTS strategy_versions (
+     version_id TEXT PRIMARY KEY,
+     status TEXT NOT NULL,
+     parent_version TEXT,
+     created_ms INTEGER NOT NULL,
+     updated_ms INTEGER NOT NULL,
+     parameters TEXT NOT NULL,
+     validation_evidence TEXT NOT NULL,
+     notes TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS backtest_runs (
+     run_id TEXT PRIMARY KEY,
+     version_id TEXT NOT NULL,
+     created_ms INTEGER NOT NULL,
+     start_ms INTEGER NOT NULL,
+     end_ms INTEGER NOT NULL,
+     split_ratio TEXT NOT NULL,
+     passed_validation INTEGER NOT NULL,
+     payload TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS backtest_runs_version ON backtest_runs(version_id, created_ms DESC);
+    INSERT OR IGNORE INTO schema_version VALUES (5);
+    """),
 )
 
 
@@ -285,6 +317,193 @@ class AuditStore:
                 if len(completed)<5:
                     result.append((json.loads(payload),completed))
             return result
+
+    def window_signals_and_outcomes(self, start_ms, end_ms, limit=5000):
+        with self.lock:
+            rows = self.db.execute(
+                "SELECT b.candidate_id, b.payload, d.state, d.reason, d.version "
+                "FROM breakout_candidates b JOIN signal_decisions d USING(candidate_id) "
+                "WHERE b.source_ms >= ? AND b.source_ms < ? ORDER BY b.source_ms ASC LIMIT ?",
+                (start_ms, end_ms, limit),
+            ).fetchall()
+            result = []
+            for cid, raw_payload, state, reason, version in rows:
+                cand = json.loads(raw_payload)
+                cand.update(state=state, reason=reason, version=version)
+                outcomes = {}
+                for h, op in self.db.execute(
+                    "SELECT horizon_minutes, payload FROM signal_forward_outcomes WHERE candidate_id=?",
+                    (cid,),
+                ):
+                    outcomes[str(h)] = json.loads(op)
+                cand["forward_outcomes"] = outcomes
+                result.append(cand)
+            return result
+
+    def window_bars(self, start_ms, end_ms, limit=50000):
+        with self.lock:
+            rows = self.db.execute(
+                "SELECT payload FROM market_bars WHERE start_ms >= ? AND end_ms <= ? ORDER BY start_ms ASC, symbol ASC LIMIT ?",
+                (start_ms, end_ms, limit),
+            ).fetchall()
+            return [json.loads(r[0]) for r in rows]
+
+    def window_events(self, start_ms, end_ms, limit=2000):
+        with self.lock:
+            rows = self.db.execute(
+                "SELECT time_ms, kind, detail FROM system_events WHERE time_ms >= ? AND time_ms < ? ORDER BY time_ms ASC LIMIT ?",
+                (start_ms, end_ms, limit),
+            ).fetchall()
+            return [{"time_ms": t, "kind": k, "detail": json.loads(d)} for t, k, d in rows]
+
+    def save_evolution_review(self, review_id, period_type, period_key, start_ms, end_ms, generated_ms, markdown, payload):
+        with self.lock, self.db:
+            self.db.execute(
+                "INSERT OR REPLACE INTO evolution_reviews VALUES (?,?,?,?,?,?,?,?)",
+                (review_id, period_type, period_key, start_ms, end_ms, generated_ms, markdown, json.dumps(payload, default=str)),
+            )
+
+    def load_evolution_review(self, review_id):
+        with self.lock:
+            row = self.db.execute(
+                "SELECT review_id, period_type, period_key, start_ms, end_ms, generated_ms, markdown, payload "
+                "FROM evolution_reviews WHERE review_id=?",
+                (review_id,),
+            ).fetchone()
+            if row is None:
+                return None
+            return {
+                "review_id": row[0],
+                "period_type": row[1],
+                "period_key": row[2],
+                "start_ms": row[3],
+                "end_ms": row[4],
+                "generated_ms": row[5],
+                "markdown": row[6],
+                "payload": json.loads(row[7]),
+            }
+
+    def list_evolution_reviews(self, period_type=None, limit=50):
+        if not 1 <= limit <= 500:
+            raise ValueError("INVALID_LIMIT")
+        with self.lock:
+            if period_type:
+                rows = self.db.execute(
+                    "SELECT review_id, period_type, period_key, start_ms, end_ms, generated_ms, markdown, payload "
+                    "FROM evolution_reviews WHERE period_type=? ORDER BY end_ms DESC LIMIT ?",
+                    (period_type, limit),
+                ).fetchall()
+            else:
+                rows = self.db.execute(
+                    "SELECT review_id, period_type, period_key, start_ms, end_ms, generated_ms, markdown, payload "
+                    "FROM evolution_reviews ORDER BY end_ms DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+            return [
+                {
+                    "review_id": r[0],
+                    "period_type": r[1],
+                    "period_key": r[2],
+                    "start_ms": r[3],
+                    "end_ms": r[4],
+                    "generated_ms": r[5],
+                    "markdown": r[6],
+                    "payload": json.loads(r[7]),
+                }
+                for r in rows
+            ]
+
+    def save_strategy_version(self, version_id, status, parent_version, created_ms, updated_ms, parameters, validation_evidence, notes=""):
+        with self.lock, self.db:
+            self.db.execute(
+                "INSERT OR REPLACE INTO strategy_versions VALUES (?,?,?,?,?,?,?,?)",
+                (
+                    version_id,
+                    status,
+                    parent_version,
+                    created_ms,
+                    updated_ms,
+                    json.dumps(parameters, default=str),
+                    json.dumps(validation_evidence, default=str),
+                    notes,
+                ),
+            )
+
+    def load_strategy_version(self, version_id):
+        with self.lock:
+            row = self.db.execute(
+                "SELECT version_id, status, parent_version, created_ms, updated_ms, parameters, validation_evidence, notes "
+                "FROM strategy_versions WHERE version_id=?",
+                (version_id,),
+            ).fetchone()
+            if row is None:
+                return None
+            return {
+                "version_id": row[0],
+                "status": row[1],
+                "parent_version": row[2],
+                "created_ms": row[3],
+                "updated_ms": row[4],
+                "parameters": json.loads(row[5]),
+                "validation_evidence": json.loads(row[6]),
+                "notes": row[7],
+            }
+
+    def list_strategy_versions(self, limit=50):
+        with self.lock:
+            rows = self.db.execute(
+                "SELECT version_id, status, parent_version, created_ms, updated_ms, parameters, validation_evidence, notes "
+                "FROM strategy_versions ORDER BY updated_ms DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+            return [
+                {
+                    "version_id": r[0],
+                    "status": r[1],
+                    "parent_version": r[2],
+                    "created_ms": r[3],
+                    "updated_ms": r[4],
+                    "parameters": json.loads(r[5]),
+                    "validation_evidence": json.loads(r[6]),
+                    "notes": r[7],
+                }
+                for r in rows
+            ]
+
+    def save_backtest_run(self, run_id, version_id, created_ms, start_ms, end_ms, split_ratio, passed_validation, payload):
+        with self.lock, self.db:
+            self.db.execute(
+                "INSERT OR REPLACE INTO backtest_runs VALUES (?,?,?,?,?,?,?,?)",
+                (run_id, version_id, created_ms, start_ms, end_ms, str(split_ratio), 1 if passed_validation else 0, json.dumps(payload, default=str)),
+            )
+
+    def list_backtest_runs(self, version_id=None, limit=50):
+        with self.lock:
+            if version_id:
+                rows = self.db.execute(
+                    "SELECT run_id, version_id, created_ms, start_ms, end_ms, split_ratio, passed_validation, payload "
+                    "FROM backtest_runs WHERE version_id=? ORDER BY created_ms DESC LIMIT ?",
+                    (version_id, limit),
+                ).fetchall()
+            else:
+                rows = self.db.execute(
+                    "SELECT run_id, version_id, created_ms, start_ms, end_ms, split_ratio, passed_validation, payload "
+                    "FROM backtest_runs ORDER BY created_ms DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+            return [
+                {
+                    "run_id": r[0],
+                    "version_id": r[1],
+                    "created_ms": r[2],
+                    "start_ms": r[3],
+                    "end_ms": r[4],
+                    "split_ratio": r[5],
+                    "passed_validation": bool(r[6]),
+                    "payload": json.loads(r[7]),
+                }
+                for r in rows
+            ]
 
     def backup(self, target):
         target = Path(target)

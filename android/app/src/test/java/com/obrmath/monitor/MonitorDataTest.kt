@@ -56,4 +56,12 @@ class MonitorDataTest {
         assertTrue(sigSummary.contains("2 个模块共用 1 套 ORB-Math 确认信号"))
         assertTrue(sigSummary.contains("实盘通道累计接收共享信号：3 次"))
     }
+    @Test fun evolutionPeriodSummaryFormatsMetricsAndSuggestions() {
+        val rev = JSONObject("""{"period_label":"每日复盘","period_key":"2026-10-30","paper_performance":{"closed_trades_count":2,"win_rate":"0.5000","profit_loss_ratio":"2.10","net_pnl":"6.60","max_drawdown":"2.20"},"live_performance":{"closed_trades_count":0,"win_rate":"0.0000","profit_loss_ratio":"0.00","net_pnl":"0.00"},"signal_diagnostics":{"total_candidates":3,"erroneous_signals_count":1,"missed_opportunities_count":2},"optimization_suggestions":[{"rationale":"建议在样本外回测中验证下调 min_rvol"}]}""")
+        val summary = evolutionPeriodSummary(rev)
+        assertTrue(summary.contains("每日复盘 (2026-10-30)"))
+        assertTrue(summary.contains("胜率 0.5000 · 盈亏比 2.10"))
+        assertTrue(summary.contains("错失机会 2"))
+        assertTrue(summary.contains("建议在样本外回测中验证下调 min_rvol"))
+    }
 }

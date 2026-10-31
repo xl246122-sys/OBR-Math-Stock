@@ -35,9 +35,9 @@ class MonitorApi(base: String, private val token: String) {
         return request("live-config","POST",config.toString(),control)
     }
     private suspend fun request(path: String,method: String,body: String?=null,control: String?=null): String = withContext(Dispatchers.IO) {
-        require((method=="POST" && path in setOf("trading-mode","paper-config","live-config")) || method=="GET")
+        require((method=="POST" && path in setOf("trading-mode","paper-config","live-config","evolution/review")) || method=="GET")
         if(method=="GET") {
-        require(path in setOf("status", "metrics", "signals", "universe", "positions", "alerts", "reports", "fees","paper-config","live-config","demo") || Regex("reports/\\d{4}-\\d{2}-\\d{2}").matches(path))
+        require(path in setOf("status", "metrics", "signals", "universe", "positions", "alerts", "reports", "fees","paper-config","live-config","demo","evolution/ai-context","evolution/reviews","evolution/versions") || Regex("reports/\\d{4}-\\d{2}-\\d{2}").matches(path))
         }
         val connection = URI("$base/api/v1/$path").toURL().openConnection() as HttpsURLConnection
         connection.instanceFollowRedirects = false
@@ -81,6 +81,7 @@ class MonitorRepository(private val api: MonitorApi) {
     suspend fun setConfig(config: JSONObject,control: String) = JSONObject(api.setConfig(config,control))
     suspend fun setLiveConfig(config: JSONObject,control: String) = JSONObject(api.setLiveConfig(config,control))
     suspend fun demo() = JSONObject(api.get("demo"))
+    suspend fun evolution() = JSONObject(api.get("evolution/ai-context"))
     suspend fun load() = Dashboard(JSONObject(api.get("status")), JSONObject(api.get("metrics")),
         JSONArray(api.get("signals")), JSONObject(api.get("universe")), JSONObject(api.get("positions")),
         JSONArray(api.get("alerts")), JSONArray(api.get("reports")), JSONObject(api.get("fees")),JSONObject(api.get("paper-config")))
@@ -136,4 +137,18 @@ internal fun sharedSignalSummary(modes: JSONObject?): String {
     return "模拟盘通道：$paperOn · 实盘通道：$liveOn\n" +
         "信号共享：2 个模块共用 1 套 ORB-Math 确认信号（互不抢占、账本完全隔离）\n" +
         "实盘通道累计接收共享信号：$sigCount 次"
+}
+
+internal fun evolutionPeriodSummary(review: JSONObject?): String {
+    if (review == null) return "暂无该周期复盘数据"
+    val p = review.optJSONObject("paper_performance")
+    val l = review.optJSONObject("live_performance")
+    val s = review.optJSONObject("signal_diagnostics")
+    val suggs = review.optJSONArray("optimization_suggestions")?.objects() ?: emptyList()
+    val firstSugg = suggs.firstOrNull()?.optString("rationale") ?: "保持当前稳定基线"
+    return "周期：${review.optString("period_label")} (${review.optString("period_key")})\n" +
+        "模拟盘：平仓 ${p?.optInt("closed_trades_count", 0)} 笔 · 胜率 ${p?.optString("win_rate", "0")} · 盈亏比 ${p?.optString("profit_loss_ratio", "0")} · 净收益 $${p?.optString("net_pnl", "0")} · 最大回撤 $${p?.optString("max_drawdown", "0")}\n" +
+        "实盘：平仓 ${l?.optInt("closed_trades_count", 0)} 笔 · 胜率 ${l?.optString("win_rate", "0")} · 盈亏比 ${l?.optString("profit_loss_ratio", "0")} · 净收益 $${l?.optString("net_pnl", "0")}\n" +
+        "信号质量：候选 ${s?.optInt("total_candidates", 0)} · 假突破 ${s?.optInt("erroneous_signals_count", 0)} · 错失机会 ${s?.optInt("missed_opportunities_count", 0)}\n" +
+        "优化建议：$firstSugg"
 }

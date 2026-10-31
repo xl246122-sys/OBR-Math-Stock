@@ -12,7 +12,8 @@ import org.json.JSONObject
 
 data class MonitorState(val connected: Boolean=false,val busy: Boolean=false,val error: String="",
     val dashboard: Dashboard?=null,val report: String="",val background: Boolean=false,
-    val pendingChange: String?=null,val base: String="",val demo: JSONObject?=null)
+    val pendingChange: String?=null,val base: String="",val demo: JSONObject?=null,
+    val evolution: JSONObject?=null)
 
 class MonitorViewModel(app: Application): AndroidViewModel(app) {
     private val mutable=MutableStateFlow(MonitorState())
@@ -129,6 +130,17 @@ class MonitorViewModel(app: Application): AndroidViewModel(app) {
                 if(version==generation) mutable.update { it.copy(demo=result) }
             } catch(cancelled: CancellationException) { throw cancelled }
             catch(_: Exception) { if(version==generation) mutable.update { it.copy(error="回放读取失败，请检查连接") } }
+        }
+    }
+    fun loadEvolution() {
+        val repo=repository ?: return
+        val version=generation;reportJob?.cancel()
+        reportJob=viewModelScope.launch {
+            try {
+                val result=repo.evolution();ensureActive()
+                if(version==generation) mutable.update { it.copy(evolution=result) }
+            } catch(cancelled: CancellationException) { throw cancelled }
+            catch(_: Exception) { if(version==generation) mutable.update { it.copy(error="复盘与进化数据读取失败") } }
         }
     }
     fun acknowledge() {
