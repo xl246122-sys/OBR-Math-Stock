@@ -1,23 +1,300 @@
 <!doctype html>
-<html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OBR Math · 运行监控</title><link rel="stylesheet" href="/static/style.css"><script defer src="/static/app.js"></script></head>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OBR / MATH · 量化监控与双通道终端 V0.6</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/app.js"></script>
+</head>
 <body>
-<header><a class="brand" href="/">OBR<span> / MATH</span></a><span class="version">运行监控 · V0.3</span><span class="pill">真实交易关闭</span></header>
-<main>
-<section id="login"><p class="eyebrow">PRIVATE MONITOR</p><h1>连接你的观察系统</h1><p class="muted">查看行情健康、研究信号和每日运行报告。</p><form id="login-form"><label for="token">访问令牌</label><div class="login-row"><input id="token" type="password" autocomplete="off" required placeholder="输入服务器监控令牌"><button type="submit">连接监控</button></div><p class="muted small">令牌仅保留在当前页面内存，刷新页面后需重新输入。</p></form></section>
-<div id="workspace" hidden>
-<section class="heading"><div><p class="eyebrow">OBSERVATION / RESEARCH</p><h1>系统运行概览</h1><p id="connection" class="muted">正在读取状态…</p></div><button id="logout" class="secondary">断开</button></section>
-<nav aria-label="监控栏目"><button data-tab="overview" class="active">概览</button><button data-tab="signals">信号</button><button data-tab="universe">股票池</button><button data-tab="reports">日报</button><button data-tab="alerts">告警</button></nav>
-<section id="overview" class="panel">
-<div class="cards"><article><p>运行状态</p><strong id="health">—</strong><small id="mode">—</small></article><article><p>已观察标的 / 候选</p><strong id="symbols">—</strong><small id="focus">—</small></article><article><p>内部处理 P95</p><strong id="latency">—</strong><small>接收后的最近样本窗口</small></article><article><p>进程内存</p><strong id="memory">—</strong><small id="uptime">—</small></article></div>
-<div class="split"><article class="surface"><h2>数据与交易条件</h2><p class="muted">观察模式持续采集数据。以下条件未满足前，不自动开仓。</p><ul id="blockers"></ul></article><article class="surface"><h2>行情连接</h2><div id="feeds"></div><p id="source-age" class="muted"></p><p class="note">源行情年龄与内部处理耗时分开统计。休市时无报价不等同于服务故障。</p></article></div>
-<article class="surface"><h2>重点订阅</h2><div id="focus-symbols" class="tags"></div><p class="muted small">先以小规模订阅验证数据质量；不会为了凑足数量自动扩大负载。</p></article>
-</section>
-<section id="signals" class="panel" hidden><h2>突破研究信号</h2><p class="muted">包含观察、拒绝及其原因；不等于已执行交易。</p><div id="signal-table" class="surface scroll"></div></section>
-<section id="universe" class="panel" hidden><h2>候选股票池</h2><p id="universe-summary" class="muted"></p><label for="search">查找代码</label><input id="search" placeholder="例如 AAPL、BA、NBIS"><div id="universe-table" class="surface scroll"></div></section>
-<section id="reports" class="panel" hidden><h2>中文运行日报</h2><p class="muted">按纽约日期，每天16:15生成；数据不完整时会注明。</p><div id="report-list" class="tags"></div><pre id="report-body" class="surface">选择日报查看。</pre></section>
-<section id="alerts" class="panel" hidden><h2>告警记录</h2><div id="alert-table" class="surface scroll"></div></section>
-</div>
-<p id="error" role="alert" hidden></p><footer>OBR Math · 仅模拟研究 · 所有时间以页面标注的时区为准</footer>
-</main>
-</body></html>
+  <header class="topbar">
+    <div class="brand-group">
+      <a class="brand" href="/">OBR<span> / MATH</span></a>
+      <span class="badge badge-info">QUANT TERMINAL · V0.6</span>
+      <span id="top-health" class="badge badge-neutral">WAITING</span>
+      <span id="top-phase" class="badge badge-neutral">RTH</span>
+    </div>
+    <div class="topbar-actions">
+      <span id="top-DualChannel" class="channel-strip" hidden>
+        <span id="pill-paper" class="badge badge-paper">模拟盘: —</span>
+        <span id="pill-live" class="badge badge-neutral">实盘: —</span>
+        <span id="pill-shared" class="muted small">共享信号: 0</span>
+      </span>
+      <button id="theme-toggle" type="button" class="btn-ghost" title="切换暗色/亮色主题">☀/☾ 主题</button>
+      <button id="refresh-btn" type="button" class="btn-secondary" hidden>刷新</button>
+      <button id="logout" type="button" class="btn-danger-outline" hidden>安全断开</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="error" class="banner banner-error" role="alert" hidden></div>
+    <div id="notice" class="banner banner-success" role="status" hidden></div>
+
+    <!-- 登录终端卡片 -->
+    <section id="login" class="login-card surface">
+      <p class="eyebrow">INSTITUTIONAL QUANT MONITOR · V0.6</p>
+      <h1>连接 OBR / MATH 量化终端</h1>
+      <p class="muted">美股开盘区间突破 (ORB) 与盘中趋势延续 · 模拟盘与实盘双通道共用确认信号 · 5周期 AI 自我进化引擎</p>
+      <form id="login-form">
+        <label for="token">监控只读访问令牌 (Bearer Token)</label>
+        <div class="login-row">
+          <input id="token" type="password" autocomplete="off" required placeholder="输入服务器监控访问令牌">
+          <button type="submit" class="btn-primary">连接量化终端</button>
+        </div>
+        <p class="muted small">安全边界：监控令牌仅保留在当前页面内存。写操作（开关通道、修改预算、复盘与晋升）均需独立 32 位操作令牌二次鉴权。</p>
+      </form>
+      <div class="security-pills">
+        <span class="badge badge-bullish">TLS 1.3 加密信道</span>
+        <span class="badge badge-info">MAIN/USDC ➔ CARD 隔离</span>
+        <span class="badge badge-paper">样本外 OOS 验证门控</span>
+      </div>
+    </section>
+
+    <!-- 主工作台 -->
+    <div id="workspace" hidden>
+      <section class="heading-bar surface">
+        <div>
+          <p class="eyebrow">DUAL-CHANNEL SHARED SIGNAL ARCHITECTURE</p>
+          <h2 id="strategy-headline">系统运行总览</h2>
+          <p id="connection" class="muted small">正在同步实时状态…</p>
+        </div>
+        <div class="quick-controls">
+          <button id="quick-paper-toggle" type="button" class="btn-secondary">切换模拟盘</button>
+          <button id="quick-live-toggle" type="button" class="btn-secondary">切换实盘</button>
+        </div>
+      </section>
+
+      <!-- 5大核心模块导航 -->
+      <nav class="primary-nav" aria-label="核心模块导航">
+        <button data-tab="overview" class="active">◉ 总览与门控</button>
+        <button data-tab="signals">⚡ 行情与信号</button>
+        <button data-tab="trading">⇄ 双通道交易</button>
+        <button data-tab="evolution">◈ 进化与投研</button>
+        <button data-tab="settings">⚙ 风控与设置</button>
+      </nav>
+
+      <!-- 1. 总览与门控 -->
+      <section id="overview" class="panel">
+        <div class="kpi-grid">
+          <article class="kpi-card kpi-info">
+            <p class="kpi-label">运行状态 / 通道模式</p>
+            <strong id="health" class="mono">—</strong>
+            <small id="mode">—</small>
+          </article>
+          <article class="kpi-card kpi-bullish">
+            <p class="kpi-label">已观察标的 / 候选池</p>
+            <strong id="symbols" class="mono">—</strong>
+            <small id="focus">—</small>
+          </article>
+          <article class="kpi-card kpi-paper">
+            <p class="kpi-label">模拟盘可用现金 / 今日盈亏</p>
+            <strong id="kpi-paper-cash" class="mono">—</strong>
+            <small id="kpi-paper-pnl">—</small>
+          </article>
+          <article class="kpi-card kpi-warning">
+            <p class="kpi-label">内部处理 P95 / 进程内存</p>
+            <strong id="latency" class="mono">—</strong>
+            <small id="memory">—</small>
+          </article>
+        </div>
+
+        <div class="split">
+          <article class="surface">
+            <div class="card-header">
+              <h2>开仓前置风控门控诊断 (Fail-Closed Gate)</h2>
+              <span id="blocker-count-badge" class="badge badge-warning">核查中</span>
+            </div>
+            <p class="muted small">以下任一条件未满足时，系统保持只读观察并自动阻断新开仓。</p>
+            <div id="blockers" class="diagnostic-list"></div>
+          </article>
+
+          <article class="surface">
+            <div class="card-header">
+              <h2>WebSocket 行情通道与连续性矩阵</h2>
+              <span id="source-age" class="badge badge-info">源延迟 —</span>
+            </div>
+            <div id="feeds" class="feed-list"></div>
+            <p class="note">源行情年龄与服务器内部耗时分开统计；出现断流缺口自动触发防污染锁定，待连续闭合 K 线验证后自动恢复。</p>
+          </article>
+        </div>
+
+        <article class="surface">
+          <div class="card-header">
+            <h2>重点实时订阅标的 (Tier-1 Focus)</h2>
+            <span class="badge badge-bullish">Quote + 5m Bar + Status</span>
+          </div>
+          <div id="focus-symbols" class="tags"></div>
+        </article>
+      </section>
+
+      <!-- 2. 行情与信号 -->
+      <section id="signals" class="panel" hidden>
+        <div class="split">
+          <article class="surface">
+            <div class="card-header">
+              <h2>ORB 突破与趋势延续信号流</h2>
+              <input id="signal-search" class="compact-input" placeholder="筛选标的或原因 (如 AAPL, CONFIRMED)">
+            </div>
+            <div id="signal-table" class="scroll"></div>
+          </article>
+          <article class="surface">
+            <div class="card-header">
+              <h2>信号后多周期表现追踪 (Forward Outcomes)</h2>
+              <span class="badge badge-info">5m / 15m / 30m / 60m</span>
+            </div>
+            <div id="outcome-table" class="scroll"></div>
+          </article>
+        </div>
+
+        <article class="surface">
+          <div class="card-header">
+            <div>
+              <h2>美国上市股票与 ETF 候选股票池 (479)</h2>
+              <p id="universe-summary" class="muted small"></p>
+            </div>
+            <input id="search" class="compact-input" placeholder="查找代码 (如 AAPL、NVDA、TSLA)">
+          </div>
+          <div id="universe-table" class="scroll"></div>
+        </article>
+      </section>
+
+      <!-- 3. 双通道交易 -->
+      <section id="trading" class="panel" hidden>
+        <div class="split">
+          <article class="surface">
+            <div class="card-header">
+              <h2>模拟盘独立账户 (Paper Account)</h2>
+              <button id="open-paper-config" type="button" class="btn-secondary">配置模拟预算</button>
+            </div>
+            <div id="paper-summary" class="metric-kv-list"></div>
+            <h3>当前模拟持仓</h3>
+            <div id="paper-positions-table" class="scroll"></div>
+            <h3>最近模拟委托与成交</h3>
+            <div id="paper-orders-table" class="scroll"></div>
+          </article>
+
+          <article class="surface">
+            <div class="card-header">
+              <h2>实盘独立账本 (MAIN/USDC ➔ CARD)</h2>
+              <button id="open-live-config" type="button" class="btn-primary">配置实盘参数</button>
+            </div>
+            <div class="wallet-flow-box">
+              <div class="wallet-node">
+                <span class="badge badge-info">1. MAIN 现货</span>
+                <strong id="live-main-free" class="mono">$0.00</strong>
+                <small>USDC 买入支付</small>
+              </div>
+              <span class="flow-arrow">──▶</span>
+              <div class="wallet-node">
+                <span class="badge badge-bullish">2. US Stock/ETF</span>
+                <strong id="live-main-res" class="mono">预占 $0.00</strong>
+                <small>禁止代币化</small>
+              </div>
+              <span class="flow-arrow">──▶</span>
+              <div class="wallet-node">
+                <span class="badge badge-bullish">3. CARD 钱包</span>
+                <strong id="live-card-settle" class="mono">$0.00</strong>
+                <small>卖出结算(不划转)</small>
+              </div>
+            </div>
+            <div id="live-summary" class="metric-kv-list"></div>
+          </article>
+        </div>
+
+        <article class="surface">
+          <div class="card-header">
+            <div>
+              <h2>隔离沙盒合成回放 (Deterministic Sandbox Replay)</h2>
+              <p class="muted small">使用固定合成行情演示止盈退出、止损退出与日亏损熔断，与生产账户完全隔离。</p>
+            </div>
+            <button id="run-demo-btn" type="button" class="btn-secondary">加载沙盒回放</button>
+          </div>
+          <div id="demo-scenarios" class="demo-grid"></div>
+        </article>
+      </section>
+
+      <!-- 4. 进化与投研 -->
+      <section id="evolution" class="panel" hidden>
+        <article class="surface">
+          <div class="card-header">
+            <div>
+              <h2>5周期自动复盘与 AI 诊断引擎</h2>
+              <p class="muted small">模拟/实盘记录 ➔ 5周期归因复盘 (日/5日/月/季/半年) ➔ AI 参数诊断 ➔ 样本外 (OOS) 验证晋升</p>
+            </div>
+            <button id="refresh-evolution-btn" type="button" class="btn-secondary">刷新复盘与版本库</button>
+          </div>
+          <div id="evolution-reviews-grid" class="demo-grid"></div>
+        </article>
+
+        <div class="split">
+          <article class="surface">
+            <div class="card-header">
+              <h2>策略与数学模型版本库 (OOS Gate)</h2>
+              <span class="badge badge-bullish">未过样本外禁止覆盖稳定版</span>
+            </div>
+            <div id="evolution-versions-table" class="scroll"></div>
+          </article>
+
+          <article class="surface">
+            <div class="card-header">
+              <h2>中文运行日报归档</h2>
+              <span class="badge badge-neutral">NYSE 16:15</span>
+            </div>
+            <div id="report-list" class="tags"></div>
+            <pre id="report-body" class="report-pre">选择上方日期查看中文运行日报。</pre>
+          </article>
+        </div>
+      </section>
+
+      <!-- 5. 风控与设置 -->
+      <section id="settings" class="panel" hidden>
+        <div class="split">
+          <article class="surface">
+            <div class="card-header">
+              <h2>币安官方美股手续费监控</h2>
+              <a class="btn-secondary" href="https://www.binance.com/en/fee/stocks" target="_blank" rel="noopener noreferrer">打开官方费率表</a>
+            </div>
+            <p id="fee-status-line" class="muted small">正在读取官方费率观察记录…</p>
+            <pre id="fee-body" class="report-pre"></pre>
+          </article>
+
+          <article class="surface">
+            <div class="card-header">
+              <h2>系统告警审计日志</h2>
+              <span id="alert-count-badge" class="badge badge-neutral">0</span>
+            </div>
+            <div id="alert-table" class="scroll"></div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <!-- 手续费变更弹窗 -->
+    <dialog id="fee-dialog" class="modal-dialog">
+      <h2>币安美股官方手续费发生变更</h2>
+      <pre id="fee-dialog-text" class="report-pre"></pre>
+      <div class="modal-actions">
+        <button id="fee-ack-btn" type="button" class="btn-primary">我已知悉</button>
+      </div>
+    </dialog>
+
+    <!-- 通道切换与配置弹窗 -->
+    <dialog id="control-dialog" class="modal-dialog">
+      <h2 id="control-dialog-title">操作确认</h2>
+      <p id="control-dialog-desc" class="muted small"></p>
+      <form id="control-form">
+        <div id="control-fields"></div>
+        <label for="control-token-input">独立操作令牌 (X-OBR-Control-Token ≥32位)</label>
+        <input id="control-token-input" type="password" autocomplete="off" required placeholder="输入独立 32 位操作令牌">
+        <div class="modal-actions">
+          <button id="control-cancel-btn" type="button" class="btn-secondary">取消</button>
+          <button type="submit" class="btn-primary">确认执行</button>
+        </div>
+      </form>
+    </dialog>
+
+    <footer>OBR / MATH · 模拟盘与实盘双通道共用信号终端 · 所有策略默认遵循 Fail-Closed 机构安全边界</footer>
+  </main>
+</body>
+</html>

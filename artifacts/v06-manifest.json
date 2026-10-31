@@ -1,14 +1,14 @@
 {
   "OBR-Math-0.6.0.apk": {
-    "bytes": 6874620,
-    "sha256": "c9e844a3b34fa3627e3313260dfd751527549ba308414de19a9203de60073cdf"
+    "bytes": 7005692,
+    "sha256": "05c3ed35b5a498f14286f89f2e945399f206b6d13727695d67454e801f5a5052"
   },
   "OBR-Math-0.6.0-debug.apk": {
-    "bytes": 9286443,
-    "sha256": "b472c621dceaebeedbb61ef4b26017225fad0815f832f70e6576a0ec787030bd"
+    "bytes": 9499435,
+    "sha256": "10e520b9e7b8277908322b1ecbe0a90052b132458e5bf5761210b665db64a1ee"
   },
   "OBR-Math-0.6.0-backend.tar.gz": {
-    "bytes": 125451,
-    "sha256": "3c7269ea8dd09509d4e103e9a89f4ea63b9ae6448f810578aa6cd4345c773c4a"
+    "bytes": 133372,
+    "sha256": "6f99e11089e8629fcd171e63264bacb5a0207006ecd12ee5bfbbda80a03446a1"
   }
 }

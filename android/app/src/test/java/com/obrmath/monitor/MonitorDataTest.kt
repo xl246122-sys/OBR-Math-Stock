@@ -64,4 +64,17 @@ class MonitorDataTest {
         assertTrue(summary.contains("错失机会 2"))
         assertTrue(summary.contains("建议在样本外回测中验证下调 min_rvol"))
     }
+    @Test fun blockerAndSignalDiagnosticsTranslateIntoFinancialChinese() {
+        val feeDiag = diagnoseBlocker("FEES_NOT_VERIFIED")
+        assertEquals("WARNING", feeDiag.severity)
+        assertTrue(feeDiag.title.contains("手续费"))
+        val gapDiag = diagnoseBlocker("MARKET_DATA_GAP")
+        assertEquals("CRITICAL", gapDiag.severity)
+        assertTrue(translateSignalReason("ORB_BREAKOUT_CONFIRMED").contains("开盘区间突破确认"))
+        assertTrue(translateSignalReason("RVOL_BELOW_THRESHOLD").contains("RVOL"))
+        assertEquals("美股盘中交易 (RTH Open)", translateMarketPhase("RTH_OPEN"))
+        assertEquals("1.75%", formatPct("0.0175"))
+        assertEquals("$600.00", formatUsd("600"))
+        assertEquals("-$12.50", formatUsd("-12.5"))
+    }
 }
