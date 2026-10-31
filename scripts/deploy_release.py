@@ -20,7 +20,7 @@ def private_write(path, content):
 
 def main():
     staging, version = Path(sys.argv[1]).resolve(), sys.argv[2]
-    if not re.fullmatch(r"v0[56]-[0-9TZ-]+", version):
+    if not re.fullmatch(r"v[0-9]+-[0-9TZ-]+", version):
         raise ValueError("INVALID_RELEASE_NAME")
     credential = json.load(sys.stdin)
     key = credential["api_key"]
@@ -64,7 +64,7 @@ def main():
                                                  headers={"Authorization":"Bearer "+values["OBR_API_TOKEN"]})
                 with urllib.request.urlopen(request,timeout=2) as response:
                     status = json.load(response)
-                if status.get("version") in {"0.5.0", "0.6.0"} and status.get("paper_mode") is True and status.get("live_trading_enabled") is False:
+                if status.get("version") in {"0.5.0", "0.6.0", "0.7.0", "0.8.0", "0.9.0", "1.0.0"} and status.get("paper_mode") is True and status.get("live_trading_enabled") is False:
                     print(json.dumps({"release":str(release),"status":status}))
                     return
             except Exception:

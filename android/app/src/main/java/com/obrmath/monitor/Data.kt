@@ -14,6 +14,7 @@ import java.util.TimeZone
 import javax.net.ssl.HttpsURLConnection
 
 internal const val DEFAULT_SERVER = "https://43.163.203.127"
+internal const val APP_VERSION = "0.7.0"
 
 internal fun validatedBase(raw: String): String {
     val uri = URI(raw.trim())

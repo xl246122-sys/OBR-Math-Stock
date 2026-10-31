@@ -456,7 +456,7 @@ private fun LoginTerminalScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            StatusPill(text = "QUANT TERMINAL · V0.6", tone = BadgeTone.INFO)
+            StatusPill(text = "QUANT TERMINAL · V$APP_VERSION", tone = BadgeTone.INFO)
             TextButton(onClick = onToggleTheme) {
                 Text(if (darkTheme) "☀ 日间模式" else "☾ 机构暗色", color = p.primaryAccent)
             }
