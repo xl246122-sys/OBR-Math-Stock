@@ -52,13 +52,14 @@ class MainActivity: ComponentActivity() {
     var requestedMode by remember { mutableStateOf<String?>(null) }
     var controlToken by remember { mutableStateOf("") }
     var editingBudget by remember { mutableStateOf(false) }
+    var editingLiveBudget by remember { mutableStateOf(false) }
     val lifecycle=LocalLifecycleOwner.current.lifecycle
     val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         notificationDenied=!granted
         if(granted) vm.background(true)
     }
     LaunchedEffect(lifecycle,state.connected) {
-        if(!state.connected) { requestedMode=null;controlToken="";editingBudget=false }
+        if(!state.connected) { requestedMode=null;controlToken="";editingBudget=false;editingLiveBudget=false }
         if(state.connected) token=""
         if(state.connected) lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while(true) { delay(15000);vm.refresh() }
@@ -67,7 +68,7 @@ class MainActivity: ComponentActivity() {
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.safeDrawingPadding().padding(horizontal=16.dp)) {
             Text("OBR Math",style=MaterialTheme.typography.headlineMedium,modifier=Modifier.padding(top=16.dp))
-            Text("原生监控 · 仅观察与模拟研究")
+            Text("原生监控 · 模拟盘与实盘双通道共用信号")
             if(state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             if(state.error.isNotEmpty()) Text(state.error,color=MaterialTheme.colorScheme.error)
             if(!state.connected) {
@@ -87,6 +88,7 @@ class MainActivity: ComponentActivity() {
                     if(d!=null) when(page) {
                         "概览" -> {
                             item { Record("运行状态","${d.status.optString("health")} · ${d.status.optString("mode")}\n行情：${d.status.optString("market_connection")}\n市场：${d.status.optString("market_phase")}") }
+                            item { Record("双模块共用信号",sharedSignalSummary(d.status.optJSONObject("trading_modes"))) }
                             item { Record("股票观察","候选 ${d.status.optInt("candidate_count")} · 重点 ${d.status.optInt("focus_count")}") }
                             item { Record("行情通道与连续性",feedHealthSummary(d.status)) }
                             item { Record("待满足条件",d.status.optJSONArray("blockers")?.strings()?.joinToString("\n") ?: "暂无") }
@@ -107,7 +109,8 @@ class MainActivity: ComponentActivity() {
                             }
                         }
                         "持仓" -> {
-                            item { Record("实盘独立账本（隔离只读）",liveLedgerSummary(d.status.optJSONObject("trading_modes"))) }
+                            item { Record("实盘仓位配置（自定义参数）",liveConfigSummary(d.status.optJSONObject("trading_modes"))) }
+                            item { Record("实盘独立账本（MAIN/USDC -> CARD）",liveLedgerSummary(d.status.optJSONObject("trading_modes"))) }
                             item { val c=d.positions.optJSONObject("configuration");Record("模拟预算","初始资金 $${c?.optString("initial_cash")} · 单笔上限 $${c?.optString("per_order_budget")}\n同时持仓上限 ${c?.optInt("max_positions")} 笔") }
                             item { Text(if(d.positions.optBoolean("enabled")) "模拟账户已建立 · 仅模拟成交" else "等待模拟账户核验：${d.positions.optString("reason")}") }
                             item { Record("开仓状态",d.positions.optJSONArray("entry_blockers")?.strings()?.joinToString("\n")?.ifEmpty { "请查看首页市场时段与运行状态" } ?: "等待状态") }
@@ -153,24 +156,20 @@ class MainActivity: ComponentActivity() {
                         }
                         "设置" -> {
                             item {
-                                Button(onClick={editingBudget=true},enabled=!state.busy && d.status.optJSONObject("trading_modes")?.optBoolean("control_configured")==true) { Text("编辑模拟预算与风险限额") }
-                                Text("保存前请关闭模拟开仓，等待持仓与订单结束。已有账户不可通过修改初始资金重置余额。")
-                            }
-                            item {
                                 val modes=d.status.optJSONObject("trading_modes")
-                                Text("交易模式",style=MaterialTheme.typography.titleMedium)
-                                Text("实盘与模拟盘互斥；都关闭时只观察，并保留已有持仓的退出保护。")
+                                Text("交易模式（双通道独立开关 · 共用同一信号）",style=MaterialTheme.typography.titleMedium)
+                                Text("实盘与模拟盘可同时开启（模拟盘照样跑）；2 个模块共用 1 套确认信号，账本与持仓完全隔离。")
                                 Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
-                                    Text("模拟盘",Modifier.weight(1f))
+                                    Text("模拟盘（照样独立运行）",Modifier.weight(1f))
                                     Switch(checked=modes?.optBoolean("paper_enabled")==true,
                                         enabled=!state.busy && modes?.optBoolean("control_configured")==true,
-                                        onCheckedChange={ requestedMode=if(it) "PAPER" else "OFF" })
+                                        onCheckedChange={ requestedMode=if(it) "PAPER_ON" else "PAPER_OFF" })
                                 }
                                 Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
-                                    Text("实盘（真实资金）",Modifier.weight(1f))
+                                    Text("实盘（真实资金 · MAIN/USDC -> CARD）",Modifier.weight(1f))
                                     Switch(checked=modes?.optBoolean("live_enabled")==true,
                                         enabled=!state.busy && modes?.optBoolean("live_available")==true && modes.optBoolean("control_configured"),
-                                        onCheckedChange={ requestedMode=if(it) "LIVE" else "OFF" })
+                                        onCheckedChange={ requestedMode=if(it) "LIVE_ON" else "LIVE_OFF" })
                                 }
                                 if(modes==null) Text("当前服务器尚未提供模式控制，请先升级服务。")
                                 else {
@@ -180,8 +179,19 @@ class MainActivity: ComponentActivity() {
                                         Text("买入：${scope.optString("buy_wallet")} 现货钱包 / ${scope.optString("quote_asset")}\n卖出结算：${scope.optString("sell_settlement_wallet")}；不自动划转。")
                                     }
                                     if(!modes.optBoolean("control_configured")) Text("服务器尚未配置独立操作令牌；监控令牌不能切换模式。")
-                                    if(!modes.optBoolean("live_available")) Text("实盘未就绪，不能使用真实资金：\n${modes.optJSONArray("live_blockers")?.strings()?.joinToString("\n")}")
+                                    val liveBlockers=modes.optJSONArray("live_blockers")?.strings() ?: emptyList()
+                                    if(liveBlockers.isNotEmpty()) Text("实盘对账与核验提示：\n${liveBlockers.joinToString("\n")}")
                                 }
+                            }
+                            item {
+                                val modes=d.status.optJSONObject("trading_modes")
+                                Record("当前实盘仓位参数",liveConfigSummary(modes))
+                                Button(onClick={editingLiveBudget=true},enabled=!state.busy && modes?.optBoolean("control_configured")==true) { Text("编辑实盘仓位与风控参数") }
+                                Text("无实盘持仓或未完成挂单时，可随时自定义并保存实盘仓位与止盈止损参数（模拟盘照样运行）。")
+                            }
+                            item {
+                                Button(onClick={editingBudget=true},enabled=!state.busy && d.status.optJSONObject("trading_modes")?.optBoolean("control_configured")==true) { Text("编辑模拟预算与风险限额") }
+                                Text("保存模拟预算前请先关闭【模拟盘】开关，等待模拟持仓与订单结束。")
                             }
                             item { Text("后台手续费提醒") }
                             item { Switch(checked=state.background,onCheckedChange={ enabled ->
@@ -197,16 +207,35 @@ class MainActivity: ComponentActivity() {
             }
         }
     }
-    if(editingBudget && state.connected && state.dashboard!=null) {
+    if(editingLiveBudget && state.connected && state.dashboard!=null) {
+        val liveCfgObj=state.dashboard!!.status.optJSONObject("trading_modes")?.optJSONObject("live_config") ?: JSONObject()
+        LiveBudgetEditor(liveCfgObj,onDismiss={editingLiveBudget=false},onSave={config,control ->
+            vm.saveLiveConfig(config,control);editingLiveBudget=false
+        })
+    } else if(editingBudget && state.connected && state.dashboard!=null) {
         BudgetEditor(state.dashboard!!.paperConfig,onDismiss={editingBudget=false},onSave={config,control ->
             vm.saveConfig(config,control);editingBudget=false
         })
     } else if(requestedMode!=null && state.connected) {
         val target=requestedMode!!
+        val dialogTitle=when(target) {
+            "LIVE_ON","LIVE","BOTH" -> "开启实盘通道（模拟盘照样跑）"
+            "LIVE_OFF" -> "关闭实盘通道（保留模拟盘状态）"
+            "PAPER_ON","PAPER" -> "开启模拟盘通道"
+            "PAPER_OFF" -> "关闭模拟盘通道"
+            else -> "切换交易通道模式"
+        }
+        val dialogDesc=when(target) {
+            "LIVE_ON","LIVE","BOTH" -> "开启实盘通道后，模拟盘与实盘将共用同一套确认信号并行运行（MAIN/USDC 买入 -> CARD 结算，不自动划转）。"
+            "LIVE_OFF" -> "停止实盘新开仓（已有实盘持仓继续退出保护），模拟盘保持当前运行状态不变。"
+            "PAPER_ON","PAPER" -> "开启模拟盘新开仓，与实盘通道共用同一套策略确认信号。"
+            "PAPER_OFF" -> "停止模拟盘新开仓（已有模拟持仓继续退出保护），实盘通道状态保持不变。"
+            else -> "停止新开仓，已有持仓继续退出保护。"
+        }
         AlertDialog(onDismissRequest={requestedMode=null;controlToken=""},
-            title={Text(if(target=="OFF") "关闭新开仓" else if(target=="PAPER") "开启模拟盘" else "开启实盘")},
+            title={Text(dialogTitle)},
             text={ Column {
-                Text(if(target=="PAPER") "仅使用模拟资金；开启后仍须通过行情与费用风控。" else if(target=="OFF") "停止新开仓，已有持仓继续退出保护。" else "此模式涉及真实资金。只有账户与实盘执行链路核验完成后才可启用。")
+                Text(dialogDesc)
                 OutlinedTextField(controlToken,{controlToken=it},label={Text("独立操作令牌")},singleLine=true,visualTransformation=PasswordVisualTransformation())
             } },
             confirmButton={TextButton(enabled=controlToken.length>=32,onClick={
@@ -260,5 +289,44 @@ class MainActivity: ComponentActivity() {
             }
         }
         if(valid) { onSave(payload,secret);secret="" } else error="请输入正数金额，数量须为 1 至 5 的整数。"
+    }) { Text("保存") }},dismissButton={TextButton(onClick=onDismiss) { Text("取消") }})
+}
+
+@Composable private fun LiveBudgetEditor(saved: JSONObject,onDismiss: () -> Unit,onSave: (JSONObject,String) -> Unit) {
+    val defaults=mapOf("allocated_usdc" to "600","per_order_budget" to "300","max_positions" to "2",
+        "max_daily_loss" to "30","max_exposure" to "600","max_daily_symbols" to "5",
+        "take_profit_pct" to "0.0175","stop_loss_pct" to "0.0080")
+    val labels=listOf("allocated_usdc" to "实盘分配资金（MAIN 现货 USDC）",
+        "per_order_budget" to "单笔含费上限（USDC）",
+        "max_positions" to "同时持仓数（1–5）",
+        "max_daily_loss" to "日亏损熔断上限（USDC）",
+        "max_exposure" to "总敞口上限（USDC）",
+        "max_daily_symbols" to "每日标的数上限（1–5）",
+        "take_profit_pct" to "止盈比例（如 0.0175 为 1.75%）",
+        "stop_loss_pct" to "止损比例（如 0.0080 为 0.80%）")
+    val cfg=saved.optJSONObject("configuration")
+    val values=remember { mutableStateMapOf<String,String>().apply {
+        labels.forEach { (key,_) -> put(key,cfg?.optString(key)?.ifBlank { defaults[key] ?: "" } ?: defaults[key] ?: "") }
+    } }
+    var secret by remember { mutableStateOf("") };var error by remember { mutableStateOf("") }
+    AlertDialog(onDismissRequest=onDismiss,title={Text("实盘仓位与风控参数配置")},text={
+        LazyColumn(Modifier.heightIn(max=460.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+            item { Text("买入使用 MAIN 现货 USDC，卖出结算至 CARD 钱包；与模拟盘共用同一确认信号。") }
+            items(labels) { (key,label) -> OutlinedTextField(values[key] ?: "",{values[key]=it},label={Text(label)},singleLine=true) }
+            item { OutlinedTextField(secret,{secret=it},label={Text("独立操作令牌")},singleLine=true,visualTransformation=PasswordVisualTransformation()) }
+            item { if(error.isNotBlank()) Text(error,color=MaterialTheme.colorScheme.error) }
+        }
+    },confirmButton={TextButton(enabled=secret.length>=32,onClick={
+        val payload=JSONObject().put("revision",saved.optInt("revision",0))
+        var valid=true
+        labels.forEach { (key,_) ->
+            val value=values[key]?.trim() ?: ""
+            if(key in setOf("max_positions","max_daily_symbols")) {
+                val parsed=value.toIntOrNull();if(parsed==null || parsed !in 1..5) valid=false else payload.put(key,parsed)
+            } else {
+                val parsed=value.toBigDecimalOrNull();if(parsed==null || parsed.signum()<=0 || value.length>24) valid=false else payload.put(key,value)
+            }
+        }
+        if(valid) { onSave(payload,secret);secret="" } else error="请输入有效的正数金额/比例，持仓与标的数须为 1 至 5 的整数。"
     }) { Text("保存") }},dismissButton={TextButton(onClick=onDismiss) { Text("取消") }})
 }

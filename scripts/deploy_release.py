@@ -46,6 +46,7 @@ def main():
     if len(values.get("OBR_CONTROL_TOKEN",""))<32 or values.get("OBR_CONTROL_TOKEN")==values.get("OBR_API_TOKEN"):
         values["OBR_CONTROL_TOKEN"]=secrets.token_urlsafe(48)
     values.update(PAPER_MODE="true",LIVE_TRADING_ENABLED="false",OBR_RUNTIME_ENABLED="true",
+                  OBR_LIVE_CONTROL_ENABLED="true",
                   OBR_DATA_DIR="/var/lib/obr-math",OBR_FOCUS_LIMIT="9",
                   OBR_UNIVERSE_FILE=str(release/"data/universe.json"),OBR_CALENDAR_FILE=str(release/"data/calendar.json"))
     private_write(env,"".join(f"{k}={v}\n" for k,v in values.items()))

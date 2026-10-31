@@ -480,3 +480,53 @@ class LiveLedger:
             ledger.source_to_client[order.source_id] = order.client_id
         ledger.fills = list(state.get("fills", ()))
         return ledger
+
+
+class LiveRuntime:
+    """Independent live worker sharing the strategy's confirmed signal stream."""
+
+    def __init__(self, store, config, ledger=None):
+        self.store = store
+        self.config = config
+        self.ledger = ledger
+        self.pending = []
+        self.received_signals = []
+        self.failure = None
+
+    def submit(self, decision):
+        payload = asdict(decision) if hasattr(decision, "__dataclass_fields__") else dict(decision)
+        if len(self.pending) >= 100:
+            self.failure = "LIVE_SIGNAL_QUEUE_FULL"
+            return False
+        self.pending.append(payload)
+        self.received_signals = (self.received_signals + [payload])[-50:]
+        return True
+
+    def is_flat(self) -> bool:
+        if self.ledger is None:
+            return True
+        has_pos = any(p.quantity > 0 for p in self.ledger.strategy_positions.values())
+        has_ord = any(o.state in ACTIVE_LIVE_STATES for o in self.ledger.orders.values())
+        return not has_pos and not has_ord
+
+    def status_summary(self, live_enabled: bool):
+        snap = self.ledger.snapshot() if self.ledger else None
+        return {
+            "account_namespace": LiveLedger.NAMESPACE,
+            "paper_isolated": True,
+            "shared_signal": True,
+            "live_enabled": live_enabled,
+            "initialized": self.ledger is not None,
+            "reconciled": bool(self.ledger and self.ledger.reconciled),
+            "configuration": self.config.public(),
+            "main_usdc_free": snap["main_usdc_free"] if snap else str(self.config.allocated_usdc),
+            "main_usdc_reserved": snap["main_usdc_reserved"] if snap else "0",
+            "card_settlement_usdc": snap["card_settlement_usdc"] if snap else "0",
+            "realized_pnl_usdc": snap["realized_pnl_usdc"] if snap else "0",
+            "strategy_positions": snap["strategy_positions"] if snap else [],
+            "external_positions": snap["external_positions"] if snap else {},
+            "orders": (snap["orders"][-30:] if snap else []),
+            "fills": (snap["fills"][-30:] if snap else []),
+            "received_signals_count": len(self.received_signals),
+            "pending_signals_count": len(self.pending),
+        }

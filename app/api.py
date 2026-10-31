@@ -14,7 +14,7 @@ from app.config import Settings
 
 class ModeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    mode: Literal["OFF", "PAPER", "LIVE"]
+    mode: Literal["OFF", "PAPER", "LIVE", "BOTH", "PAPER_ON", "PAPER_OFF", "LIVE_ON", "LIVE_OFF"]
     revision: int = Field(ge=0)
 
 
@@ -27,6 +27,19 @@ class PaperConfigRequest(BaseModel):
     max_daily_loss: str = Field(max_length=24)
     max_exposure: str = Field(max_length=24)
     max_daily_symbols: int = Field(ge=1,le=5)
+
+
+class LiveConfigRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    revision: int = Field(ge=0)
+    allocated_usdc: str = Field(max_length=24)
+    per_order_budget: str = Field(max_length=24)
+    max_positions: int = Field(ge=1, le=5)
+    max_daily_loss: str = Field(max_length=24)
+    max_exposure: str = Field(max_length=24)
+    max_daily_symbols: int = Field(ge=1, le=5)
+    take_profit_pct: str = Field(default="0.0175", max_length=16)
+    stop_loss_pct: str = Field(default="0.0080", max_length=16)
 
 
 def create_app(settings=None):
@@ -123,6 +136,21 @@ def create_app(settings=None):
         except ValueError as error:raise HTTPException(409,str(error)) from None
         except Exception:raise HTTPException(503,"CONFIG_SAVE_FAILED_REFRESH_REQUIRED") from None
 
+    @app.get("/api/v1/live-config", dependencies=[Depends(authenticate)])
+    def live_config():
+        return runtime().live_config_status()
+
+    @app.post("/api/v1/live-config", dependencies=[Depends(authenticate), Depends(control_authorization)])
+    async def set_live_config(request: LiveConfigRequest):
+        from app.paper_config import LiveConfig
+        try:
+            config = LiveConfig(**request.model_dump(exclude={"revision"}))
+            return await runtime().change_live_config(config, request.revision)
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from None
+        except Exception:
+            raise HTTPException(503, "LIVE_CONFIG_SAVE_FAILED_REFRESH_REQUIRED") from None
+
     @app.get("/api/v1/demo", dependencies=[Depends(authenticate)])
     async def demo():
         from app.demo import demonstration
@@ -166,7 +194,10 @@ def create_app(settings=None):
         current = app.state.runtime
         if current:
             return {**current.paper.cached,"fee_status":"VERIFIED" if current.paper_verified["fees"] else "UNVERIFIED",
-                    "entry_blockers":current.status()["blockers"]}
+                    "entry_blockers":current.status()["blockers"],
+                    "shared_signal":True,
+                    "live":current.live.status_summary(current.trading_modes.live_enabled),
+                    "live_config":current.live_config_status()}
         config = current.paper_config if current else (PaperConfig.load(settings.paper_config_file) if settings.paper_config_file else PaperConfig())
         return {"enabled": False, "reason": "AUTO_TRADING_NOT_CONNECTED", "positions": [],
                 "configuration": config.public(), "fee_status": "UNVERIFIED"}

@@ -22,7 +22,7 @@ class MonitorApi(base: String, private val token: String) {
     init { require(token.isNotBlank() && token.none { it == '\r' || it == '\n' }) { "访问令牌无效" } }
     suspend fun get(path: String): String = request(path,"GET")
     suspend fun setMode(mode: String,revision: Int,control: String): String {
-        require(mode in setOf("OFF","PAPER","LIVE") && revision>=0)
+        require(mode in setOf("OFF","PAPER","LIVE","BOTH","PAPER_ON","PAPER_OFF","LIVE_ON","LIVE_OFF") && revision>=0)
         require(control.length>=32 && control.none { it=='\r' || it=='\n' }) { "请输入独立操作令牌" }
         return request("trading-mode","POST",JSONObject().put("mode",mode).put("revision",revision).toString(),control)
     }
@@ -30,10 +30,14 @@ class MonitorApi(base: String, private val token: String) {
         require(control.length>=32 && control.none { it=='\r' || it=='\n' }) { "请输入独立操作令牌" }
         return request("paper-config","POST",config.toString(),control)
     }
+    suspend fun setLiveConfig(config: JSONObject,control: String): String {
+        require(control.length>=32 && control.none { it=='\r' || it=='\n' }) { "请输入独立操作令牌" }
+        return request("live-config","POST",config.toString(),control)
+    }
     private suspend fun request(path: String,method: String,body: String?=null,control: String?=null): String = withContext(Dispatchers.IO) {
-        require((method=="POST" && path in setOf("trading-mode","paper-config")) || method=="GET")
+        require((method=="POST" && path in setOf("trading-mode","paper-config","live-config")) || method=="GET")
         if(method=="GET") {
-        require(path in setOf("status", "metrics", "signals", "universe", "positions", "alerts", "reports", "fees","paper-config","demo") || Regex("reports/\\d{4}-\\d{2}-\\d{2}").matches(path))
+        require(path in setOf("status", "metrics", "signals", "universe", "positions", "alerts", "reports", "fees","paper-config","live-config","demo") || Regex("reports/\\d{4}-\\d{2}-\\d{2}").matches(path))
         }
         val connection = URI("$base/api/v1/$path").toURL().openConnection() as HttpsURLConnection
         connection.instanceFollowRedirects = false
@@ -75,6 +79,7 @@ data class Dashboard(
 class MonitorRepository(private val api: MonitorApi) {
     suspend fun setMode(mode: String,revision: Int,control: String) = JSONObject(api.setMode(mode,revision,control))
     suspend fun setConfig(config: JSONObject,control: String) = JSONObject(api.setConfig(config,control))
+    suspend fun setLiveConfig(config: JSONObject,control: String) = JSONObject(api.setLiveConfig(config,control))
     suspend fun demo() = JSONObject(api.get("demo"))
     suspend fun load() = Dashboard(JSONObject(api.get("status")), JSONObject(api.get("metrics")),
         JSONArray(api.get("signals")), JSONObject(api.get("universe")), JSONObject(api.get("positions")),
@@ -110,4 +115,25 @@ internal fun liveLedgerSummary(modes: JSONObject?): String {
         "MAIN 现货可用 USDC：$${ledger.optString("main_usdc_free", "0")}（预占 $${ledger.optString("main_usdc_reserved", "0")}）\n" +
         "CARD 卖出结算累计：$${ledger.optString("card_settlement_usdc", "0")}（不自动划转回现货）\n" +
         "手工既有仓位隔离数：$extCount 个标的（策略不接管）"
+}
+
+internal fun liveConfigSummary(modes: JSONObject?): String {
+    val cfg = modes?.optJSONObject("live_config")?.optJSONObject("configuration")
+        ?: modes?.optJSONObject("live_ledger")?.optJSONObject("configuration")
+        ?: return "暂未读取实盘仓位参数"
+    return "实盘配置资金：$${cfg.optString("allocated_usdc")} USDC · 单笔上限 $${cfg.optString("per_order_budget")}\n" +
+        "同时持仓上限：${cfg.optInt("max_positions")} 笔 · 每日标的上限：${cfg.optInt("max_daily_symbols")} 个\n" +
+        "总敞口上限：$${cfg.optString("max_exposure")} · 日亏损熔断：$${cfg.optString("max_daily_loss")}\n" +
+        "止盈比例：${cfg.optString("take_profit_pct", "0.0175")} · 止损比例：${cfg.optString("stop_loss_pct", "0.0080")}\n" +
+        "钱包路径：${cfg.optString("buy_wallet", "MAIN")}/${cfg.optString("quote_asset", "USDC")} 买入 -> ${cfg.optString("sell_settlement_wallet", "CARD")} 卖出结算"
+}
+
+internal fun sharedSignalSummary(modes: JSONObject?): String {
+    if (modes == null) return "等待通道模式状态"
+    val paperOn = if (modes.optBoolean("paper_enabled")) "运行中" else "已关闭"
+    val liveOn = if (modes.optBoolean("live_enabled")) "运行中" else "已关闭"
+    val sigCount = modes.optJSONObject("live_ledger")?.optInt("received_signals_count", 0) ?: 0
+    return "模拟盘通道：$paperOn · 实盘通道：$liveOn\n" +
+        "信号共享：2 个模块共用 1 套 ORB-Math 确认信号（互不抢占、账本完全隔离）\n" +
+        "实盘通道累计接收共享信号：$sigCount 次"
 }

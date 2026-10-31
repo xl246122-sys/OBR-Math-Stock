@@ -16,12 +16,12 @@ from app.storage import AuditStore, EventWriter
 from app.strategy import OBRMathEngine, Parameters
 from app.features import Momentum, VolumeHistory, VolumeEvidence, SessionVolumes
 from app.research import OutcomeTracker
-from app.paper_config import PaperConfig
+from app.paper_config import PaperConfig, LiveConfig
 from app.paper_runtime import PaperRuntime, readiness
 from app.trading_state import TradingState
 from app.trading_modes import TradingModes
 from app.live_scope import public_scope, InstrumentRegistry
-from app.live_execution import LiveLedger
+from app.live_execution import LiveLedger, LiveRuntime
 from app.universe import select_tiered_focus
 
 
@@ -43,6 +43,9 @@ class Runtime:
         saved_config = self.store.load_paper_configuration()
         self.config_revision = saved_config["revision"] if saved_config else 0
         if saved_config:self.paper_config=PaperConfig(**saved_config["configuration"])
+        saved_live_config = self.store.load_live_configuration()
+        self.live_config_revision = saved_live_config["revision"] if saved_live_config else 0
+        self.live_config = LiveConfig(**saved_live_config["configuration"]) if saved_live_config else LiveConfig()
         self.writer = EventWriter(self.store)
         self.universe = json.loads(settings.universe_file.read_text(encoding="utf-8"))
         self.candidates = frozenset(self.universe["symbols"])
@@ -61,10 +64,11 @@ class Runtime:
             self.feeds.append(_build_feed(feed_factory, batch, "focus_status"))
         self.trading_state = TradingState(self.focus)
         self.paper = PaperRuntime(self.store,self.paper_config)
-        self.trading_modes = TradingModes(self.store)
+        self.trading_modes = TradingModes(self.store, live_available=settings.live_control_enabled)
         self.instruments = InstrumentRegistry.load(settings.data_dir/"instrument-evidence.json")
         saved_live = self.store.load_live_state()
         self.live_ledger = LiveLedger.restore(saved_live) if saved_live else None
+        self.live = LiveRuntime(self.store, self.live_config, self.live_ledger)
         self.paper_verified = readiness(settings.data_dir,self.now_ms())
         self.gate = QuoteGate(self.focus)
         self.metrics = Metrics()
@@ -124,7 +128,7 @@ class Runtime:
         if session:
             phase = "RTH_OPEN" if session.open_ms <= now < session.close_ms else "RTH_CLOSED"
         blockers = list(self.paper_verified["blockers"])
-        if self.trading_modes.state["mode"] != "PAPER":blockers.append("PAPER_MODE_OFF")
+        if not self.trading_modes.paper_enabled:blockers.append("PAPER_MODE_OFF")
         if self.paper_verified["fees"] is None: blockers.append("FEES_NOT_VERIFIED")
         if not set(self.focus)<=self.paper_verified["volume_symbols"]:blockers.append("VOLUME_NOT_VERIFIED")
         if self.paper.failure:blockers.append(self.paper.failure)
@@ -150,6 +154,7 @@ class Runtime:
                 "rules_verified": self.rules_verified, "rules_checked_ms": self.rules_checked_ms,
                 "blockers": blockers, "heartbeat_ms": now,
                 "paper_config": self.paper_config.public(),
+                "live_config": self.live_config.public(),
                 "paper_pipeline_connected":True,"paper_account_initialized":self.paper.account is not None,
                 "trading_modes":self.mode_status(),
                 "momentum_ready_symbols": [s for s,m in self.momentum.items() if all(v is not None for v in m.at(now).values())],
@@ -283,7 +288,11 @@ class Runtime:
                        "session_close_ms":session.close_ms}
             if self.writer.submit_event("signal",payload,received_ms):
                 self.outcomes.add(payload,session.close_ms)
-                if decision.state=="CONFIRMED" and self.trading_modes.state["mode"]=="PAPER":self.paper.submit(decision)
+                if decision.state=="CONFIRMED":
+                    if self.trading_modes.paper_enabled:
+                        self.paper.submit(decision)
+                    if self.trading_modes.live_enabled:
+                        self.live.submit(decision)
 
     def mode_status(self):
         now = self.now_ms()
@@ -298,25 +307,49 @@ class Runtime:
         result = self.trading_modes.snapshot(live_blockers)
         result["live_scope"] = public_scope()
         result["control_configured"] = len(self.settings.control_token)>=32 and self.settings.control_token!=self.settings.api_token
-        result["live_ledger"] = {
-            "account_namespace": LiveLedger.NAMESPACE,
-            "paper_isolated": True,
-            "initialized": self.live_ledger is not None,
-            "reconciled": bool(self.live_ledger and self.live_ledger.reconciled),
-            "main_usdc_free": str(self.live_ledger.main_usdc_free) if self.live_ledger else "0",
-            "main_usdc_reserved": str(self.live_ledger.main_usdc_reserved) if self.live_ledger else "0",
-            "card_settlement_usdc": str(self.live_ledger.card_settlement_usdc) if self.live_ledger else "0",
-            "external_positions": self.live_ledger.snapshot()["external_positions"] if self.live_ledger else {},
-        }
+        result["live_config"] = self.live_config_status()
+        result["live_ledger"] = self.live.status_summary(self.trading_modes.live_enabled)
         return result
 
     def config_status(self):
         return {"revision":self.config_revision,"configuration":self.paper_config.public(),
                 "initial_cash_locked":self.paper.account is not None}
 
+    def live_config_status(self):
+        return {"revision": self.live_config_revision, "configuration": self.live_config.public(),
+                "live_enabled": self.trading_modes.live_enabled, "paper_enabled": self.trading_modes.paper_enabled,
+                "shared_signal": True}
+
+    async def change_live_config(self, config, revision):
+        async with self.trading_modes.lock:
+            if revision != self.live_config_revision:
+                raise ValueError("LIVE_CONFIG_REVISION_CONFLICT")
+            if not self.live.is_flat():
+                raise ValueError("LIVE_ACCOUNT_MUST_BE_FLAT")
+            state = None
+            if self.live_ledger is not None:
+                state = self.live_ledger.snapshot()
+                state["per_order_budget"] = str(config.per_order_budget)
+                state["max_positions"] = config.max_positions
+            def save():
+                saved = self.store.save_live_configuration(config.public(), revision, state)
+                if state is not None:
+                    self.live_ledger = LiveLedger.restore(state)
+                    self.live.ledger = self.live_ledger
+                self.live_config = config
+                self.live.config = config
+                self.live_config_revision = saved["revision"]
+                return self.live_config_status()
+            worker = asyncio.create_task(asyncio.to_thread(save))
+            try:
+                return await asyncio.shield(worker)
+            except asyncio.CancelledError:
+                await worker
+                raise
+
     async def change_paper_config(self, config, revision):
         async with self.trading_modes.lock:
-            if self.trading_modes.state["mode"]!="OFF":raise ValueError("TURN_MODE_OFF_FIRST")
+            if self.trading_modes.paper_enabled:raise ValueError("TURN_MODE_OFF_FIRST")
             if revision!=self.config_revision:raise ValueError("CONFIG_REVISION_CONFLICT")
             account=self.paper.account
             state=None
@@ -351,14 +384,20 @@ class Runtime:
                 await asyncio.shield(worker)
             except asyncio.CancelledError:
                 await worker
-                self.paper.pending.clear()
+                if not self.trading_modes.paper_enabled:
+                    self.paper.pending.clear()
+                if not self.trading_modes.live_enabled:
+                    self.live.pending.clear()
                 raise
-            self.paper.pending.clear()
+            if not self.trading_modes.paper_enabled:
+                self.paper.pending.clear()
+            if not self.trading_modes.live_enabled:
+                self.live.pending.clear()
             return self.mode_status()
 
     async def paper_tick(self, context):
         async with self.trading_modes.lock:
-            context = {**context,"healthy":context["healthy"] and self.trading_modes.state["mode"]=="PAPER"}
+            context = {**context,"healthy":context["healthy"] and self.trading_modes.paper_enabled}
             await self.paper.tick(context)
 
     async def paper_loop(self):

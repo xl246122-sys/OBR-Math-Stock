@@ -14,6 +14,7 @@ class Settings:
     focus_limit: int = 9
     paper_config_file: Path | None = None
     control_token: str = field(default="", repr=False)
+    live_control_enabled: bool = False
 
     @classmethod
     def from_env(cls):
@@ -33,4 +34,5 @@ class Settings:
                    Path(os.getenv("OBR_CALENDAR_FILE", "data/calendar.json")),
                    os.getenv("BINANCE_API_KEY", ""), limit,
                    Path(os.environ["OBR_PAPER_CONFIG_FILE"]) if os.getenv("OBR_PAPER_CONFIG_FILE") else None,
-                   os.getenv("OBR_CONTROL_TOKEN", ""))
+                   os.getenv("OBR_CONTROL_TOKEN", ""),
+                   os.getenv("OBR_LIVE_CONTROL_ENABLED", "false").lower() == "true")

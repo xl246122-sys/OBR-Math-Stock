@@ -45,4 +45,15 @@ class MonitorDataTest {
         assertTrue(summary.contains("CARD 卖出结算累计：$203.83（不自动划转回现货）"))
         assertTrue(summary.contains("手工既有仓位隔离数：1 个标的"))
     }
+    @Test fun liveConfigAndSharedSignalSummaryFormatCorrectly() {
+        val modes = JSONObject("""{"paper_enabled":true,"live_enabled":true,"live_config":{"revision":1,"configuration":{"allocated_usdc":"800","per_order_budget":"160","max_positions":4,"max_daily_loss":"40","max_exposure":"640","max_daily_symbols":4,"take_profit_pct":"0.025","stop_loss_pct":"0.012","buy_wallet":"MAIN","quote_asset":"USDC","sell_settlement_wallet":"CARD"}},"live_ledger":{"received_signals_count":3}}""")
+        val cfgSummary = liveConfigSummary(modes)
+        assertTrue(cfgSummary.contains("实盘配置资金：$800 USDC · 单笔上限 $160"))
+        assertTrue(cfgSummary.contains("同时持仓上限：4 笔"))
+        assertTrue(cfgSummary.contains("止盈比例：0.025 · 止损比例：0.012"))
+        val sigSummary = sharedSignalSummary(modes)
+        assertTrue(sigSummary.contains("模拟盘通道：运行中 · 实盘通道：运行中"))
+        assertTrue(sigSummary.contains("2 个模块共用 1 套 ORB-Math 确认信号"))
+        assertTrue(sigSummary.contains("实盘通道累计接收共享信号：3 次"))
+    }
 }

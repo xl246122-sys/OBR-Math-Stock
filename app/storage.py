@@ -51,6 +51,11 @@ MIGRATIONS = (
      symbol TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_ms INTEGER NOT NULL);
     INSERT OR IGNORE INTO schema_version VALUES (3);
     """),
+    (4, """
+    CREATE TABLE IF NOT EXISTS live_configuration (
+     singleton INTEGER PRIMARY KEY CHECK(singleton=1), payload TEXT NOT NULL);
+    INSERT OR IGNORE INTO schema_version VALUES (4);
+    """),
 )
 
 
@@ -163,6 +168,27 @@ class AuditStore:
         with self.lock:
             row=self.db.execute("SELECT payload FROM paper_configuration WHERE singleton=1").fetchone()
             return None if row is None else json.loads(row[0])
+
+    def load_live_configuration(self):
+        with self.lock:
+            row = self.db.execute("SELECT payload FROM live_configuration WHERE singleton=1").fetchone()
+            return None if row is None else json.loads(row[0])
+
+    def save_live_configuration(self, configuration, revision, live_state=None):
+        with self.lock, self.db:
+            row = self.db.execute("SELECT payload FROM live_configuration WHERE singleton=1").fetchone()
+            actual = json.loads(row[0])["revision"] if row else 0
+            if actual != revision:
+                raise ValueError("LIVE_CONFIG_REVISION_CONFLICT")
+            state = {"revision": actual + 1, "configuration": configuration}
+            self.db.execute("INSERT OR REPLACE INTO live_configuration VALUES (1,?)", (json.dumps(state),))
+            if live_state is not None:
+                self.db.execute("INSERT OR REPLACE INTO live_state VALUES (1,?)", (json.dumps(live_state, default=str),))
+            self.db.execute(
+                "INSERT INTO system_events(time_ms,kind,detail) VALUES (?,?,?)",
+                (time.time_ns() // 1000000, "LIVE_CONFIG_CHANGED", json.dumps({"code": "LIVE_CONFIG_CHANGED", **state})),
+            )
+            return state
 
     def save_paper_configuration(self, configuration, revision, paper_state=None):
         with self.lock, self.db:

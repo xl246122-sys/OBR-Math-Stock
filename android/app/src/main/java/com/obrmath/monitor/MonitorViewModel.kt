@@ -105,6 +105,21 @@ class MonitorViewModel(app: Application): AndroidViewModel(app) {
             finally { if(version==generation) mutable.update { it.copy(busy=false) } }
         }
     }
+    fun saveLiveConfig(config: JSONObject,control: String) {
+        val repo=repository ?: return
+        if(modeJob?.isActive==true) return
+        val version=generation;request?.cancel()
+        modeJob=viewModelScope.launch {
+            mutable.update { it.copy(busy=true,error="") }
+            try {
+                repo.setLiveConfig(config,control)
+                val data=repo.load();ensureActive()
+                if(version==generation) mutable.update { it.copy(dashboard=data) }
+            } catch(cancelled: CancellationException) { throw cancelled }
+            catch(error: Exception) { if(version==generation) mutable.update { it.copy(error=error.message ?: "实盘仓位参数保存失败，请刷新") } }
+            finally { if(version==generation) mutable.update { it.copy(busy=false) } }
+        }
+    }
     fun demo() {
         val repo=repository ?: return
         val version=generation;reportJob?.cancel()

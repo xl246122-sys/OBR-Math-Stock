@@ -69,7 +69,7 @@ def test_disk_failure_does_not_hang_shutdown():
 
 def test_schema_migration_live_state_isolation_and_paper_compaction(tmp_path):
     store = AuditStore(tmp_path / "audit.db")
-    assert store.schema_version() == 3
+    assert store.schema_version() == 4
     store.save_paper_state({
         "schema": 1,
         "cash": "600",
