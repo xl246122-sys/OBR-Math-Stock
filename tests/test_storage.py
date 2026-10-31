@@ -65,3 +65,30 @@ def test_disk_failure_does_not_hang_shutdown():
             await asyncio.wait_for(writer.stop(task), 2)
         assert not writer.can_open_positions
     asyncio.run(scenario())
+
+
+def test_schema_migration_live_state_isolation_and_paper_compaction(tmp_path):
+    store = AuditStore(tmp_path / "audit.db")
+    assert store.schema_version() == 3
+    store.save_paper_state({
+        "schema": 1,
+        "cash": "600",
+        "orders": [
+            {"client_id": f"done-{i}", "state": "FILLED"} for i in range(5)
+        ] + [{"client_id": "active-1", "state": "ACKNOWLEDGED"}],
+        "fills": [{"client_id": f"done-{i}", "price": "100"} for i in range(6)],
+    })
+    store.save_live_state({
+        "schema": 1,
+        "account_namespace": "LIVE_EQUITY_MAIN_USDC_CARD",
+        "main_usdc_free": "600",
+    })
+    assert store.load_live_state()["account_namespace"] == "LIVE_EQUITY_MAIN_USDC_CARD"
+    result = store.compact_paper_state(max_terminal_orders=2, max_fills=3)
+    assert result == {"compacted": True, "archived_orders": 3, "archived_fills": 3}
+    compacted = store.load_paper_state()
+    assert [o["client_id"] for o in compacted["orders"]] == ["active-1", "done-3", "done-4"]
+    assert len(compacted["fills"]) == 3
+    alerts = store.recent("alerts")
+    assert any(a.get("code") == "PAPER_HISTORY_ARCHIVED" and a.get("archived_orders_count") == 3 for a in alerts)
+    store.close()

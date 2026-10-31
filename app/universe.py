@@ -35,3 +35,17 @@ def prioritize(symbols, verified_rules, scores, limit=300):
         raise ValueError("INVALID_SUBSCRIPTION_LIMIT")
     eligible = [s for s in set(symbols) if verified_rules.get(s) == "BUY_SELL"]
     return tuple(sorted(eligible, key=lambda s: (-scores.get(s, 0), s))[:limit])
+
+
+def select_tiered_focus(ordered_symbols, rules, pinned=(), scores=None, limit=9):
+    """Select focus symbols pinning active exposure first, then ranking verified BUY_SELL symbols."""
+    if not 0 <= limit <= 300:
+        raise ValueError("INVALID_SUBSCRIPTION_LIMIT")
+    pinned = list(dict.fromkeys(pinned))
+    if len(pinned) > limit:
+        raise ValueError("RESTORED_EXPOSURE_EXCEEDS_SUBSCRIPTION_CAPACITY")
+    eligible = [s for s in dict.fromkeys(ordered_symbols)
+                if s not in pinned and rules.get(s, {}).get("tradability") == "BUY_SELL"]
+    if scores:
+        eligible = sorted(eligible, key=lambda s: (-scores.get(s, 0), ordered_symbols.index(s)))
+    return tuple(dict.fromkeys(pinned + eligible))[:limit]

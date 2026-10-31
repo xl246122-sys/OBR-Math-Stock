@@ -88,6 +88,7 @@ class MainActivity: ComponentActivity() {
                         "概览" -> {
                             item { Record("运行状态","${d.status.optString("health")} · ${d.status.optString("mode")}\n行情：${d.status.optString("market_connection")}\n市场：${d.status.optString("market_phase")}") }
                             item { Record("股票观察","候选 ${d.status.optInt("candidate_count")} · 重点 ${d.status.optInt("focus_count")}") }
+                            item { Record("行情通道与连续性",feedHealthSummary(d.status)) }
                             item { Record("待满足条件",d.status.optJSONArray("blockers")?.strings()?.joinToString("\n") ?: "暂无") }
                             item { val m=d.metrics.optJSONObject("latest");Record("性能指标","处理 P95：${m?.optJSONObject("processing")?.opt("p95_ms") ?: "未测得"} ms\n内存：${m?.opt("rss_bytes") ?: "未测得"} bytes") }
                         }
@@ -96,12 +97,17 @@ class MainActivity: ComponentActivity() {
                             items(d.signals.objects()) { row -> Record(row.optString("symbol"),"${row.optString("kind")} · ${row.optString("state")}\n${row.optString("reason")}") }
                         }
                         "股票池" -> {
+                            item {
+                                val ver=d.universe.optJSONObject("instrument_verification")
+                                Record("权威资产元数据状态","状态：${d.universe.optString("metadata_status")}\n已核验 US STOCK/ETF：${ver?.optInt("verified_count") ?: 0} · 待核验：${ver?.optInt("unverified_count") ?: d.universe.optJSONArray("symbols")?.length() ?: 0}")
+                            }
                             item { OutlinedTextField(search,{search=it},label={Text("搜索股票代码")},modifier=Modifier.fillMaxWidth()) }
                             items(d.universe.optJSONArray("symbols")?.strings()?.filter { it.contains(search,true) } ?: emptyList()) { symbol ->
                                 Record(symbol,d.universe.optJSONObject("rules")?.optJSONObject(symbol)?.optString("tradability") ?: "待核验")
                             }
                         }
                         "持仓" -> {
+                            item { Record("实盘独立账本（隔离只读）",liveLedgerSummary(d.status.optJSONObject("trading_modes"))) }
                             item { val c=d.positions.optJSONObject("configuration");Record("模拟预算","初始资金 $${c?.optString("initial_cash")} · 单笔上限 $${c?.optString("per_order_budget")}\n同时持仓上限 ${c?.optInt("max_positions")} 笔") }
                             item { Text(if(d.positions.optBoolean("enabled")) "模拟账户已建立 · 仅模拟成交" else "等待模拟账户核验：${d.positions.optString("reason")}") }
                             item { Record("开仓状态",d.positions.optJSONArray("entry_blockers")?.strings()?.joinToString("\n")?.ifEmpty { "请查看首页市场时段与运行状态" } ?: "等待状态") }

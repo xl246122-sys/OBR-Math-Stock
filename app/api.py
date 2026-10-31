@@ -154,9 +154,11 @@ def create_app(settings=None):
     @app.get("/api/v1/universe", dependencies=[Depends(authenticate)])
     def universe():
         current = runtime()
+        inst = current.instruments.summary(current.candidates, current.now_ms())
         return {"version": current.universe["version"], "symbols": sorted(current.candidates),
                 "focus": current.focus, "rules": current.rules, "rules_verified": current.rules_verified,
-                "metadata_status": "ISSUER_REGION_AND_MARKET_CAP_NOT_VERIFIED"}
+                "metadata_status": inst["status"],
+                "instrument_verification": inst}
 
     @app.get("/api/v1/positions", dependencies=[Depends(authenticate)])
     def positions():

@@ -43,6 +43,16 @@ CREATE INDEX IF NOT EXISTS events_time ON system_events(time_ms);
 INSERT OR IGNORE INTO schema_version VALUES (2);
 """
 
+MIGRATIONS = (
+    (3, """
+    CREATE TABLE IF NOT EXISTS live_state (
+     singleton INTEGER PRIMARY KEY CHECK(singleton=1), payload TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS instrument_metadata (
+     symbol TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_ms INTEGER NOT NULL);
+    INSERT OR IGNORE INTO schema_version VALUES (3);
+    """),
+)
+
 
 class AuditStore:
     def __init__(self, path):
@@ -54,6 +64,18 @@ class AuditStore:
         self.db.execute("PRAGMA synchronous=FULL")
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.executescript(SCHEMA)
+        self._apply_migrations()
+
+    def _apply_migrations(self):
+        with self.lock, self.db:
+            current = self.db.execute("SELECT COALESCE(MAX(version), 0) FROM schema_version").fetchone()[0]
+            for version, script in MIGRATIONS:
+                if version > current:
+                    self.db.executescript(script)
+
+    def schema_version(self):
+        with self.lock:
+            return self.db.execute("SELECT COALESCE(MAX(version), 0) FROM schema_version").fetchone()[0]
 
     def write(self, batch):
         with self.lock, self.db:
@@ -171,6 +193,50 @@ class AuditStore:
     def save_paper_state(self, state):
         with self.lock, self.db:
             self.db.execute("INSERT OR REPLACE INTO paper_state VALUES (1,?)", (json.dumps(state, default=str),))
+
+    def load_live_state(self):
+        with self.lock:
+            row = self.db.execute("SELECT payload FROM live_state WHERE singleton=1").fetchone()
+            return None if row is None else json.loads(row[0])
+
+    def save_live_state(self, state):
+        if state.get("account_namespace") != "LIVE_EQUITY_MAIN_USDC_CARD":
+            raise ValueError("INVALID_LIVE_STATE_NAMESPACE")
+        with self.lock, self.db:
+            self.db.execute("INSERT OR REPLACE INTO live_state VALUES (1,?)", (json.dumps(state, default=str),))
+
+    def compact_paper_state(self, *, max_terminal_orders=200, max_fills=500):
+        """Bound paper_state snapshot size by archiving older terminal orders and fills to system_events."""
+        with self.lock, self.db:
+            row = self.db.execute("SELECT payload FROM paper_state WHERE singleton=1").fetchone()
+            if row is None:
+                return {"compacted": False, "archived_orders": 0, "archived_fills": 0}
+            state = json.loads(row[0])
+            orders = state.get("orders", [])
+            fills = state.get("fills", [])
+            active = [o for o in orders if o.get("state") not in {"FILLED", "CANCELED", "EXPIRED"}]
+            terminal = [o for o in orders if o.get("state") in {"FILLED", "CANCELED", "EXPIRED"}]
+            archived_orders = terminal[:-max_terminal_orders] if max_terminal_orders > 0 and len(terminal) > max_terminal_orders else []
+            kept_terminal = terminal[-max_terminal_orders:] if max_terminal_orders > 0 else []
+            archived_fills = fills[:-max_fills] if max_fills > 0 and len(fills) > max_fills else []
+            kept_fills = fills[-max_fills:] if max_fills > 0 else []
+            if not archived_orders and not archived_fills:
+                return {"compacted": False, "archived_orders": 0, "archived_fills": 0}
+            now_ms = time.time_ns() // 1_000_000
+            archive_payload = {
+                "code": "PAPER_HISTORY_ARCHIVED",
+                "time_ms": now_ms,
+                "archived_orders_count": len(archived_orders),
+                "archived_fills_count": len(archived_fills),
+                "archived_orders": archived_orders,
+                "archived_fills": archived_fills,
+            }
+            state["orders"] = active + kept_terminal
+            state["fills"] = kept_fills
+            self.db.execute("INSERT INTO system_events(time_ms,kind,detail) VALUES (?,?,?)",
+                            (now_ms, "PAPER_HISTORY_ARCHIVED", json.dumps(archive_payload, default=str)))
+            self.db.execute("INSERT OR REPLACE INTO paper_state VALUES (1,?)", (json.dumps(state, default=str),))
+            return {"compacted": True, "archived_orders": len(archived_orders), "archived_fills": len(archived_fills)}
 
     def prune_metrics(self, before_ms):
         # Critical candidate/order/report history is intentionally never deleted here.

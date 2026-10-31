@@ -9,7 +9,7 @@ import time
 
 from app.calendar import Calendar, NY
 from app.exchange import exchange_info
-from app.feed import MarketFeed
+from app.feed import MarketFeed, partition_streams
 from app.market import Bar, Quote, QuoteGate
 from app.monitoring import Metrics, daily_report
 from app.storage import AuditStore, EventWriter
@@ -20,7 +20,18 @@ from app.paper_config import PaperConfig
 from app.paper_runtime import PaperRuntime, readiness
 from app.trading_state import TradingState
 from app.trading_modes import TradingModes
-from app.live_scope import public_scope
+from app.live_scope import public_scope, InstrumentRegistry
+from app.live_execution import LiveLedger
+from app.universe import select_tiered_focus
+
+
+def _build_feed(feed_factory, streams, role):
+    try:
+        feed = feed_factory(list(streams), role=role)
+    except TypeError:
+        feed = feed_factory(list(streams))
+        feed.role = role
+    return feed
 
 
 class Runtime:
@@ -42,18 +53,18 @@ class Runtime:
         restored = self.store.load_paper_state() or {}
         pinned = [p["symbol"] for p in restored.get("positions", []) if Decimal(p["quantity"]) > 0]
         pinned += [o["symbol"] for o in restored.get("orders", []) if o["state"] not in {"FILLED","CANCELED","EXPIRED"}]
-        pinned = list(dict.fromkeys(pinned))
-        if len(pinned) > settings.focus_limit:
-            raise ValueError("RESTORED_EXPOSURE_EXCEEDS_SUBSCRIPTION_CAPACITY")
-        eligible = [s for s in ordered if self.rules.get(s, {}).get("tradability") == "BUY_SELL"]
-        self.focus = tuple(dict.fromkeys(pinned + eligible))[:settings.focus_limit]
-        self.feeds = [feed_factory(["price"])]
-        if self.focus:
-            self.feeds.append(feed_factory([f"{s}@{stream}" for s in self.focus for stream in ("quote", "kline_5m")]))
-            self.feeds.append(feed_factory([f"{s}@{stream}" for s in self.focus for stream in ("tradability", "tradingStatus")]))
+        self.focus = select_tiered_focus(ordered, self.rules, pinned=pinned, limit=settings.focus_limit)
+        self.feeds = [_build_feed(feed_factory, ["price"], "price")]
+        for batch in partition_streams(self.focus, ("quote", "kline_5m")):
+            self.feeds.append(_build_feed(feed_factory, batch, "focus_market"))
+        for batch in partition_streams(self.focus, ("tradability", "tradingStatus")):
+            self.feeds.append(_build_feed(feed_factory, batch, "focus_status"))
         self.trading_state = TradingState(self.focus)
         self.paper = PaperRuntime(self.store,self.paper_config)
         self.trading_modes = TradingModes(self.store)
+        self.instruments = InstrumentRegistry.load(settings.data_dir/"instrument-evidence.json")
+        saved_live = self.store.load_live_state()
+        self.live_ledger = LiveLedger.restore(saved_live) if saved_live else None
         self.paper_verified = readiness(settings.data_dir,self.now_ms())
         self.gate = QuoteGate(self.focus)
         self.metrics = Metrics()
@@ -143,8 +154,27 @@ class Runtime:
                 "trading_modes":self.mode_status(),
                 "momentum_ready_symbols": [s for s,m in self.momentum.items() if all(v is not None for v in m.at(now).values())],
                 "volume_quality_failures": dict(self.volume_evidence.failures),
-                "feeds": [{"connected": f.connected, "queue": f.queue.qsize(), "dropped": f.dropped,
+                "feeds": [{"role": getattr(f, "role", "generic"), "connected": f.connected, "data_gap": f.data_gap,
+                           "queue": f.queue.qsize(), "dropped": f.dropped,
                            "reconnects": f.reconnects, "last_received_ms": f.last_received_ms} for f in self.feeds]}
+
+    def feeds_by_role(self, role):
+        return [f for f in self.feeds if getattr(f, "role", None) == role]
+
+    def status_feeds_healthy(self):
+        status_feeds = self.feeds_by_role("focus_status")
+        if not status_feeds and len(self.feeds) > 2:
+            status_feeds = [self.feeds[2]]
+        return bool(status_feeds) and all(f.connected and not f.data_gap for f in status_feeds)
+
+    def recover_feed_continuity(self, now_ms):
+        recovered = []
+        for feed in self.feeds:
+            if feed.data_gap and hasattr(feed, "recover_continuity") and feed.recover_continuity(now_ms):
+                role = getattr(feed, "role", "generic")
+                recovered.append(role)
+                self.alert("FEED_CONTINUITY_RECOVERED", {"role": role, "reconnects": feed.reconnects})
+        return recovered
 
     async def refresh_rules(self):
         while True:
@@ -256,9 +286,28 @@ class Runtime:
                 if decision.state=="CONFIRMED" and self.trading_modes.state["mode"]=="PAPER":self.paper.submit(decision)
 
     def mode_status(self):
-        result = self.trading_modes.snapshot(["LIVE_ACCOUNT_NOT_RECONCILED", "LIVE_FEES_NOT_VERIFIED", "LIVE_INSTRUMENT_METADATA_NOT_VERIFIED"])
+        now = self.now_ms()
+        live_blockers = []
+        if self.live_ledger is None or not self.live_ledger.reconciled:
+            live_blockers.append("LIVE_ACCOUNT_NOT_RECONCILED")
+        if self.paper_verified["fees"] is None:
+            live_blockers.append("LIVE_FEES_NOT_VERIFIED")
+        inst_summary = self.instruments.summary(self.focus or self.candidates, now)
+        if not inst_summary["all_verified"]:
+            live_blockers.append("LIVE_INSTRUMENT_METADATA_NOT_VERIFIED")
+        result = self.trading_modes.snapshot(live_blockers)
         result["live_scope"] = public_scope()
         result["control_configured"] = len(self.settings.control_token)>=32 and self.settings.control_token!=self.settings.api_token
+        result["live_ledger"] = {
+            "account_namespace": LiveLedger.NAMESPACE,
+            "paper_isolated": True,
+            "initialized": self.live_ledger is not None,
+            "reconciled": bool(self.live_ledger and self.live_ledger.reconciled),
+            "main_usdc_free": str(self.live_ledger.main_usdc_free) if self.live_ledger else "0",
+            "main_usdc_reserved": str(self.live_ledger.main_usdc_reserved) if self.live_ledger else "0",
+            "card_settlement_usdc": str(self.live_ledger.card_settlement_usdc) if self.live_ledger else "0",
+            "external_positions": self.live_ledger.snapshot()["external_positions"] if self.live_ledger else {},
+        }
         return result
 
     def config_status(self):
@@ -320,7 +369,7 @@ class Runtime:
             rules_ok=self.rules_verified and self.rules_checked_ms is not None and 0<=now-self.rules_checked_ms<=20*60000
             in_session=session is not None and session.open_ms<=now<session.close_ms
             directions={s:self.trading_state.direction(s,self.rules,now) for s in self.focus}
-            status_ok=len(self.feeds)>2 and self.feeds[2].connected and not self.feeds[2].data_gap
+            status_ok=self.status_feeds_healthy()
             sell={s for s,d in directions.items() if d in {"BUY_SELL","SELL"}} if rules_ok and in_session and status_ok else set()
             buy={s for s,d in directions.items() if d in {"BUY_SELL","BUY"} and s in self.paper_verified["volume_symbols"] and not self.volume_evidence.failures[s]} if rules_ok and in_session and status_ok else set()
             rules={s:{**r,**({"tickSize":str(self.paper_verified["ticks"][s])} if s in self.paper_verified["ticks"] else {})} for s,r in self.rules.items()}
@@ -337,6 +386,7 @@ class Runtime:
         while True:
             now = self.now_ms()
             self.outcomes.expire(now)
+            self.recover_feed_continuity(now)
             local = datetime.fromtimestamp(now/1000, NY)
             if self.last_day != local.date():
                 self.seen.clear()

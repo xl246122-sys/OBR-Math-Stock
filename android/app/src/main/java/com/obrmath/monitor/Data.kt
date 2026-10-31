@@ -88,3 +88,26 @@ internal fun feeSummary(fees: JSONObject): String {
     val change = fees.optJSONObject("change") ?: return "暂无手续费变更"
     return "官方来源：${fees.optString("source")}\n变更类型：${change.optString("kind")}\n原规则：\n${change.optJSONObject("before")?.toString(2)}\n新规则：\n${change.optJSONObject("after")?.toString(2)}"
 }
+
+internal fun feedHealthSummary(status: JSONObject): String {
+    val feeds = status.optJSONArray("feeds")?.objects() ?: return "暂无通道状态"
+    if (feeds.isEmpty()) return "暂无通道状态"
+    return feeds.joinToString("\n") { f ->
+        val role = f.optString("role").ifBlank { "generic" }
+        val conn = if (f.optBoolean("connected")) "已连接" else "重连中"
+        val gap = if (f.optBoolean("data_gap")) "缺口锁定(待连续性恢复)" else "连续正常"
+        "$role：$conn · $gap（重连 ${f.optInt("reconnects")} 次 / 丢弃 ${f.optInt("dropped")}）"
+    }
+}
+
+internal fun liveLedgerSummary(modes: JSONObject?): String {
+    val ledger = modes?.optJSONObject("live_ledger")
+        ?: return "实盘独立账本未初始化（与模拟盘资金完全隔离）"
+    val reconciled = if (ledger.optBoolean("reconciled")) "已完成启动对账" else "未完成对账（禁止实盘开仓）"
+    val extCount = ledger.optJSONObject("external_positions")?.length() ?: 0
+    return "账本空间：${ledger.optString("account_namespace")}\n" +
+        "对账状态：$reconciled\n" +
+        "MAIN 现货可用 USDC：$${ledger.optString("main_usdc_free", "0")}（预占 $${ledger.optString("main_usdc_reserved", "0")}）\n" +
+        "CARD 卖出结算累计：$${ledger.optString("card_settlement_usdc", "0")}（不自动划转回现货）\n" +
+        "手工既有仓位隔离数：$extCount 个标的（策略不接管）"
+}
