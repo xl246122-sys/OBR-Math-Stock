@@ -1,7 +1,7 @@
 {
   "source": "https://www.binance.com/en/fee/stocks",
   "product": "DIRECT_US_EQUITIES",
-  "checked_ms": 1793446401828,
+  "checked_ms": 1793499714082,
   "retrieval": "Official page read through browser/web tool; direct HTTP returned 202 empty",
   "terms": {
     "currency": "USD",
